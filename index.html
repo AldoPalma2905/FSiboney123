@@ -19,6 +19,10 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- Firebase SDKs (CDN Compatibilidad) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <style>
         body {
             font-family: 'Nunito', sans-serif;
@@ -113,10 +117,15 @@
                 </div>
             </div>
 
-            <!-- Fecha -->
-            <div class="flex items-center gap-2 bg-white/50 px-4 py-2.5 rounded-full border border-white/80 shadow-sm text-xs font-bold text-slate-700">
-                <i data-lucide="calendar" class="w-4 h-4 text-pink-500"></i>
-                <span id="currentDate">-- / -- / ----</span>
+            <!-- Estado de Sincronización + Fecha -->
+            <div class="flex flex-col sm:flex-row items-center gap-3">
+                <span id="syncStatus" class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold border border-yellow-200 flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5 animate-spin"></i> Conectando...
+                </span>
+                <div class="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full border border-white/80 shadow-sm text-xs font-bold text-slate-700">
+                    <i data-lucide="calendar" class="w-4 h-4 text-pink-500"></i>
+                    <span id="currentDate">-- / -- / ----</span>
+                </div>
             </div>
         </div>
     </header>
@@ -608,18 +617,35 @@
         </div>
     </div>
 
-    <!-- Script Completo con la Lógica -->
+    <!-- Script Completo con la Lógica de Firebase Realtime Sync -->
     <script>
-        let transactions = JSON.parse(localStorage.getItem('pastel_finance_txs')) || [];
-        let savingsGoals = JSON.parse(localStorage.getItem('pastel_finance_goals')) || [
+        // Configuración con tus credenciales reales de Firebase[cite: 12]
+        const firebaseConfig = {
+            apiKey: "AIzaSyAg8cp74XMwu-T1U9Wmt54KgSXXY7oWiG0",
+            authDomain: "finanzassiboney.firebaseapp.com",
+            databaseURL: "https://finanzassiboney-default-rtdb.firebaseio.com",
+            projectId: "finanzassiboney",
+            storageBucket: "finanzassiboney.firebasestorage.app",
+            messagingSenderId: "697075266664",
+            appId: "1:697075266664:web:d71d614bd2e65a816377dd"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const appRef = db.ref('finanzas_siboney');
+
+        // Variables de estado local en memoria
+        let transactions = [];
+        let savingsGoals = [
             { id: 1, name: "Viaje Soñado ✈️", target: 600000, current: 250000 },
             { id: 2, name: "Fondo Emergencia 🛡️", target: 300000, current: 180000 }
         ];
-        let subscriptions = JSON.parse(localStorage.getItem('pastel_finance_subs')) || [
+        let subscriptions = [
             { id: 1, name: "Netflix 🎬", amount: 10990, paid: false },
             { id: 2, name: "Spotify 🎵", amount: 4590, paid: true }
         ];
-        let budgetLimit = parseFloat(localStorage.getItem('pastel_finance_budget')) || 300000;
+        let budgetLimit = 300000;
         let currentFilter = 'all';
         let expenseChart = null;
         let activeDepositGoalId = null;
@@ -640,9 +666,41 @@
             document.getElementById('monthFilter').value = today.toISOString().slice(0, 7);
 
             newQuote();
-            renderApp();
             initChart();
+
+            // Escuchar cambios en tiempo real desde Firebase (Nube ➔ App)
+            appRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    transactions = data.transactions || [];
+                    savingsGoals = data.savingsGoals || [];
+                    subscriptions = data.subscriptions || [];
+                    budgetLimit = data.budgetLimit !== undefined ? data.budgetLimit : 300000;
+                } else {
+                    // Cargar valores por defecto si la base de datos está vacía
+                    saveToFirebase();
+                }
+
+                renderApp();
+
+                const syncBadge = document.getElementById('syncStatus');
+                if (syncBadge) {
+                    syncBadge.className = "bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200 flex items-center gap-1.5 shadow-sm";
+                    syncBadge.innerHTML = `<i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Sincronizado ✨`;
+                    lucide.createIcons();
+                }
+            });
         });
+
+        // Función central para subir los cambios a Firebase en tiempo real
+        function saveToFirebase() {
+            appRef.set({
+                transactions: transactions,
+                savingsGoals: savingsGoals,
+                subscriptions: subscriptions,
+                budgetLimit: budgetLimit
+            });
+        }
 
         function newQuote() {
             const random = quotes[Math.floor(Math.random() * quotes.length)];
@@ -670,9 +728,8 @@
             const inputVal = parseFloat(document.getElementById('budgetInput').value);
             if (!isNaN(inputVal) && inputVal >= 0) {
                 budgetLimit = inputVal;
-                localStorage.setItem('pastel_finance_budget', budgetLimit);
+                saveToFirebase();
                 toggleBudgetEdit(false);
-                renderApp();
             } else {
                 alert("Por favor ingresa un monto válido.");
             }
@@ -764,15 +821,16 @@
             if (!desc || !amount || amount <= 0) return;
 
             transactions.unshift({ id: Date.now(), desc: `${emoji} ${desc}`, amount, type, category, date });
-            saveAndRender();
+            saveToFirebase();
 
             document.getElementById('txDesc').value = '';
             document.getElementById('txAmount').value = '';
+            confetti({ particleCount: 35, spread: 60, origin: { y: 0.8 } });
         }
 
         function deleteTransaction(id) {
             transactions = transactions.filter(t => t.id !== id);
-            saveAndRender();
+            saveToFirebase();
         }
 
         function filterTransactions(type) {
@@ -786,13 +844,6 @@
                 }
             });
             renderTable();
-        }
-
-        function saveAndRender() {
-            localStorage.setItem('pastel_finance_txs', JSON.stringify(transactions));
-            localStorage.setItem('pastel_finance_goals', JSON.stringify(savingsGoals));
-            localStorage.setItem('pastel_finance_subs', JSON.stringify(subscriptions));
-            renderApp();
         }
 
         function renderApp() {
@@ -950,7 +1001,7 @@
             const target = parseFloat(document.getElementById('goalModalTarget').value);
             if (name && target > 0) {
                 savingsGoals.push({ id: Date.now(), name, target, current: 0 });
-                saveAndRender();
+                saveToFirebase();
                 closeGoalModal();
             } else {
                 alert("Por favor ingresa un nombre y un monto válido.");
@@ -980,7 +1031,7 @@
                     if (goal.current >= goal.target) {
                         confetti({ particleCount: 80, spread: 80, origin: { y: 0.6 } });
                     }
-                    saveAndRender();
+                    saveToFirebase();
                     closeDepositModal();
                 }
             } else {
@@ -990,7 +1041,7 @@
 
         function deleteGoal(id) {
             savingsGoals = savingsGoals.filter(g => g.id !== id);
-            saveAndRender();
+            saveToFirebase();
         }
 
         function renderSubscriptions() {
@@ -1020,13 +1071,13 @@
             const sub = subscriptions.find(s => s.id === id);
             if (sub) {
                 sub.paid = !sub.paid;
-                saveAndRender();
+                saveToFirebase();
             }
         }
 
         function deleteSub(id) {
             subscriptions = subscriptions.filter(s => s.id !== id);
-            saveAndRender();
+            saveToFirebase();
         }
 
         function openSubModal() {
@@ -1044,7 +1095,7 @@
             const amount = parseFloat(document.getElementById('subModalAmount').value);
             if (name && amount > 0) {
                 subscriptions.push({ id: Date.now(), name, amount, paid: false });
-                saveAndRender();
+                saveToFirebase();
                 closeSubModal();
             } else {
                 alert("Por favor ingresa datos válidos.");
@@ -1242,7 +1293,7 @@
                         subscriptions = data.subscriptions || [];
                         budgetLimit = data.budgetLimit || 300000;
                     }
-                    saveAndRender();
+                    saveToFirebase();
                     alert("¡Respaldo cargado con éxito! 🌸");
                 } catch(err) {
                     alert("El archivo seleccionado no es válido.");
@@ -1256,7 +1307,8 @@
                 transactions = [];
                 savingsGoals = [];
                 subscriptions = [];
-                saveAndRender();
+                budgetLimit = 300000;
+                saveToFirebase();
             }
         }
     </script>
