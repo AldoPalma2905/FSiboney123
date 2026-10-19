@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanzasSiboney 💖</title>
+
+    <!-- Favicon personalizado con emoji de estrella brillante -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💖</text></svg>">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-image: url("Rosa\ y\ Blanco\ Estilo\ Collage\ Tablero\ de\ Vision\ Board\ Fondo\ de\ pantalla.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        h1, h2, h3, .font-title {
+            font-family: 'Fredoka', cursive;
+        }
+
+        /* Glassmorphism con transparencias personalizadas */
+        .glass-card {
+            background: rgba(253, 175, 187, 0.747);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        .glass-card-subtle {
+            background: rgba(255, 255, 255, 0.30);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.25s ease;
+        }
+
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.90);
+            border-color: #f472b6;
+            box-shadow: 0 0 15px rgba(244, 114, 182, 0.3);
+            outline: none;
+        }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+
+        .animate-float {
+            animation: float-slow 6s ease-in-out infinite;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 240, 245, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(244, 114, 182, 0.5);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="pb-16 text-slate-800 antialiased selection:bg-pink-200">
+
+    <!-- Header Principal -->
+    <header class="max-w-6xl mx-auto pt-6 px-4 sm:px-6 mb-6">
+        <!-- Banner Frase Motivacional -->
+        <div class="glass-card rounded-2xl px-5 py-2.5 mb-4 flex items-center justify-between text-xs sm:text-sm font-bold text-slate-800">
+            <div class="flex items-center gap-2">
+                <span class="text-base">✨</span>
+                <span id="quoteText">Cargando inspiración del día...</span>
+            </div>
+            <button onclick="newQuote()" class="text-pink-600 hover:text-pink-800 transition p-1"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i></button>
+        </div>
+
+        <div class="glass-card rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-4 text-center md:text-left">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-400 via-purple-300 to-sky-300 flex items-center justify-center text-white shadow-lg shadow-pink-200/50 animate-float">
+                    <i data-lucide="sparkles" class="w-9 h-9"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-sky-600 bg-clip-text text-transparent">
+                        FinanzasSiboney 💖
+                    </h1>
+                    <p class="text-slate-700 font-bold text-sm mt-1">Gestiona tus ingresos, gustitos y ahorros en CLP ($)</p>
+                </div>
+            </div>
+
+            <!-- Fecha -->
+            <div class="flex items-center gap-2 bg-white/50 px-4 py-2.5 rounded-full border border-white/80 shadow-sm text-xs font-bold text-slate-700">
+                <i data-lucide="calendar" class="w-4 h-4 text-pink-500"></i>
+                <span id="currentDate">-- / -- / ----</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
+
+        <!-- 1. PRESUPUESTO MÁXIMO DE GASTOS CON SALDO RESTANTE -->
+        <section class="glass-card rounded-3xl p-5 space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm font-bold">
+                <div class="flex flex-wrap items-center gap-2">
+                    <i data-lucide="target" class="w-4 h-4 text-pink-500"></i>
+                    <span>Presupuesto Máximo del Mes:</span>
+                    
+                    <!-- Vista de Monto con Botón para Editar -->
+                    <div id="budgetViewContainer" class="flex items-center gap-2">
+                        <span id="budgetDisplay" class="text-pink-600 font-extrabold text-base">$0</span>
+                        <button onclick="toggleBudgetEdit(true)" class="bg-white/60 hover:bg-white text-pink-600 px-2.5 py-1 rounded-xl border border-white/80 text-xs font-bold transition flex items-center gap-1 shadow-sm">
+                            <i data-lucide="edit-3" class="w-3 h-3"></i> Cambiar
+                        </button>
+                    </div>
+
+                    <!-- Input Integrado en la Tarjeta -->
+                    <div id="budgetEditContainer" class="hidden flex items-center gap-2">
+                        <input type="number" id="budgetInput" placeholder="Ej: 300000" class="glass-input px-3 py-1 rounded-xl text-xs font-bold text-slate-800 w-32">
+                        <button onclick="saveBudgetFromInput()" class="bg-pink-500 hover:bg-pink-600 text-white px-3 py-1 rounded-xl text-xs font-bold transition shadow-md">
+                            Guardar
+                        </button>
+                        <button onclick="toggleBudgetEdit(false)" class="text-slate-500 hover:text-slate-700 text-xs font-bold px-1">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 text-xs">
+                    <span id="budgetRemainingText" class="bg-white/70 px-3 py-1 rounded-full text-pink-700 font-extrabold border border-pink-200">Disponible: $0</span>
+                    <span id="budgetStatusText" class="text-slate-700 font-semibold">Usado: 0%</span>
+                </div>
+            </div>
+
+            <div class="w-full bg-white/50 rounded-full h-3.5 p-0.5 border border-white/80 overflow-hidden">
+                <div id="budgetProgressBar" class="bg-gradient-to-r from-emerald-400 via-pink-400 to-rose-500 h-full rounded-full transition-all duration-500" style="width: 0%;"></div>
+            </div>
+        </section>
+
+        <!-- 2. FILTRAR PERIODO & CARDS KPI -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                    <i data-lucide="filter" class="w-4 h-4 text-pink-500"></i> Filtrar Periodo:
+                </h3>
+                <input type="month" id="monthFilter" onchange="renderApp()" class="glass-input px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800">
+            </div>
+
+            <!-- Fila de Tarjetas KPI -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                <div class="glass-card rounded-3xl p-5 transform hover:-translate-y-1 transition duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/90 px-3 py-1 rounded-full">Ingresos</span>
+                        <div class="p-2 bg-emerald-100/90 text-emerald-600 rounded-xl"><i data-lucide="arrow-down-left" class="w-5 h-5"></i></div>
+                    </div>
+                    <div id="statIncome" class="text-2xl sm:text-3xl font-extrabold text-slate-800">$0</div>
+                    <p class="text-xs text-slate-700 font-semibold mt-1">Ganado en el periodo</p>
+                </div>
+
+                <div class="glass-card rounded-3xl p-5 transform hover:-translate-y-1 transition duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-rose-700 bg-rose-100/90 px-3 py-1 rounded-full">Gastos</span>
+                        <div class="p-2 bg-rose-100/90 text-rose-600 rounded-xl"><i data-lucide="arrow-up-right" class="w-5 h-5"></i></div>
+                    </div>
+                    <div id="statExpense" class="text-2xl sm:text-3xl font-extrabold text-slate-800">$0</div>
+                    <p class="text-xs text-slate-700 font-semibold mt-1">Gastado en el periodo</p>
+                </div>
+
+                <div class="glass-card rounded-3xl p-5 transform hover:-translate-y-1 transition duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-sky-700 bg-sky-100/90 px-3 py-1 rounded-full">Ahorro</span>
+                        <div class="p-2 bg-sky-100/90 text-sky-600 rounded-xl"><i data-lucide="piggy-bank" class="w-5 h-5"></i></div>
+                    </div>
+                    <div id="statSavings" class="text-2xl sm:text-3xl font-extrabold text-slate-800">$0</div>
+                    <p class="text-xs text-slate-700 font-semibold mt-1">Guardado en el periodo</p>
+                </div>
+
+                <div class="glass-card rounded-3xl p-5 transform hover:-translate-y-1 transition duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-purple-700 bg-purple-100/90 px-3 py-1 rounded-full">Ocio</span>
+                        <div class="p-2 bg-purple-100/90 text-purple-600 rounded-xl"><i data-lucide="heart" class="w-5 h-5"></i></div>
+                    </div>
+                    <div id="statLeisure" class="text-2xl sm:text-3xl font-extrabold text-slate-800">$0</div>
+                    <p class="text-xs text-slate-700 font-semibold mt-1">En gustitos y diversión</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. AGREGAR MOVIMIENTO + HISTORIAL DE MOVIMIENTOS -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Formulario de Registro -->
+            <section class="glass-card rounded-3xl p-6 md:p-7 space-y-5">
+                <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5 text-pink-500"></i> Agregar Movimiento
+                </h2>
+
+                <form id="transactionForm" onsubmit="addTransaction(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Sticker / Icono de Referencia</label>
+                        <select id="txEmoji" class="glass-input w-full px-3 py-2.5 rounded-2xl text-sm font-bold text-slate-800">
+                            <option value="🛍️">🛍️ Gustitos / Compras</option>
+                            <option value="☕">☕ Cafés / Salidas</option>
+                            <option value="💄">💄 Skincare / Maquillaje</option>
+                            <option value="💵">💵 Sueldo / Ingreso extra</option>
+                            <option value="✈️">✈️ Viajes / Vacaciones</option>
+                            <option value="🍽️">🍽️ Restaurantes / Delivery</option>
+                            <option value="🎬">🎬 Cine / Eventos</option>
+                            <option value="🚗">🚗 Uber / Transporte</option>
+                            <option value="🎁">🎁 Regalos / Detallitos</option>
+                            <option value="🏠">🏠 Cuentas del Hogar</option>
+                            <option value="🐾">🐾 Mascotas</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Descripción</label>
+                        <input type="text" id="txDesc" placeholder="Ej: Salida con amigas, Sueldo, Zara" required class="glass-input w-full px-4 py-2.5 rounded-2xl text-slate-800 font-bold text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Monto ($ CLP)</label>
+                        <input type="number" id="txAmount" placeholder="Ej: 30000" min="1" step="any" required class="glass-input w-full px-4 py-2.5 rounded-2xl text-slate-800 font-bold text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Tipo</label>
+                            <select id="txType" class="glass-input w-full px-3 py-2.5 rounded-2xl text-slate-800 font-bold text-sm">
+                                <option value="income">Ingreso 💵</option>
+                                <option value="expense">Gasto 💸</option>
+                                <option value="savings">Ahorro 🏦</option>
+                                <option value="leisure">Ocio/Gustito 🛍️</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Categoría</label>
+                            <select id="txCategory" class="glass-input w-full px-3 py-2.5 rounded-2xl text-slate-800 font-bold text-sm">
+                                <option value="Sueldo/Trabajo">Sueldo / Trabajo</option>
+                                <option value="Comida/Restaurantes">Comida / Cafés</option>
+                                <option value="Ropa/Belleza">Ropa & Skin Care</option>
+                                <option value="Transporte">Transporte</option>
+                                <option value="Servicios/Cuentas">Cuentas / Servicios</option>
+                                <option value="Entretenimiento">Entretenimiento</option>
+                                <option value="Otros">Otros</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Fecha</label>
+                        <input type="date" id="txDate" required class="glass-input w-full px-4 py-2.5 rounded-2xl text-slate-800 font-bold text-sm">
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold rounded-2xl shadow-lg transition duration-300 flex items-center justify-center gap-2 text-sm mt-2">
+                        <i data-lucide="check" class="w-4 h-4"></i> Guardar Movimiento
+                    </button>
+                </form>
+
+                <div class="pt-4 border-t border-white/40">
+                    <h3 class="text-xs font-bold uppercase text-slate-700 tracking-wider mb-3 text-center">Distribución de Gastos</h3>
+                    <div class="w-48 h-48 mx-auto relative">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Historial de Movimientos -->
+            <section class="lg:col-span-2 glass-card rounded-3xl p-6 md:p-7 space-y-5 flex flex-col justify-between">
+                <div>
+                    <!-- Encabezado con Buscador y Filtros -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="list" class="w-5 h-5 text-sky-500"></i> Historial de Movimientos
+                        </h2>
+
+                        <!-- Buscador -->
+                        <div class="relative w-full sm:w-48">
+                            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400"></i>
+                            <input type="text" id="searchInput" oninput="renderTable()" placeholder="Buscar..." class="glass-input w-full pl-8 pr-3 py-1.5 rounded-xl text-xs font-bold text-slate-800">
+                        </div>
+                    </div>
+
+                    <!-- Botones Filtros por Tipo -->
+                    <div class="flex items-center gap-1.5 bg-white/50 p-1 rounded-xl border border-white/60 text-xs font-bold mb-4">
+                        <button onclick="filterTransactions('all')" id="filterAllBtn" class="px-3 py-1.5 rounded-lg bg-pink-100/90 text-pink-700">Todos</button>
+                        <button onclick="filterTransactions('income')" id="filterIncomeBtn" class="px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900">Ingresos</button>
+                        <button onclick="filterTransactions('expense')" id="filterExpenseBtn" class="px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900">Gastos</button>
+                        <button onclick="filterTransactions('savings')" id="filterSavingsBtn" class="px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900">Ahorros</button>
+                    </div>
+
+                    <!-- Tabla de Registros -->
+                    <div class="overflow-x-auto max-h-[420px] overflow-y-auto pr-1">
+                        <table class="w-full text-left text-sm">
+                            <thead class="text-xs uppercase text-slate-700 border-b border-white/60 sticky top-0 bg-white/80 backdrop-blur-md">
+                                <tr>
+                                    <th class="py-3 px-3">Fecha</th>
+                                    <th class="py-3 px-3">Concepto</th>
+                                    <th class="py-3 px-3">Categoría</th>
+                                    <th class="py-3 px-3 text-right">Monto</th>
+                                    <th class="py-3 px-2 text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="txTableBody" class="divide-y divide-white/40"></tbody>
+                        </table>
+
+                        <div id="emptyState" class="hidden text-center py-12 text-slate-700 space-y-2">
+                            <i data-lucide="sparkles" class="w-10 h-10 mx-auto text-pink-400"></i>
+                            <p class="font-bold text-base">Aún no hay registros</p>
+                            <p class="text-xs font-semibold">Comienza agregando tu primer movimiento a la izquierda.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer del Historial: Exportar e Importar -->
+                <div class="pt-4 border-t border-white/40 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-700 font-semibold">
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportToCSV()" class="bg-white/60 hover:bg-white/90 px-3 py-1.5 rounded-xl border border-white/80 flex items-center gap-1.5 font-bold transition">
+                            <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-600"></i> Excel (CSV)
+                        </button>
+                        <button onclick="exportJSON()" class="bg-white/60 hover:bg-white/90 px-3 py-1.5 rounded-xl border border-white/80 flex items-center gap-1.5 font-bold transition">
+                            <i data-lucide="file-json" class="w-3.5 h-3.5 text-sky-600"></i> Respaldo
+                        </button>
+                        <label class="bg-white/60 hover:bg-white/90 px-3 py-1.5 rounded-xl border border-white/80 flex items-center gap-1.5 font-bold transition cursor-pointer">
+                            <i data-lucide="upload" class="w-3.5 h-3.5 text-purple-600"></i> Cargar
+                            <input type="file" id="importFile" onchange="importJSON(event)" accept=".json" class="hidden">
+                        </label>
+                    </div>
+
+                    <button onclick="clearAllData()" class="text-rose-500 hover:text-rose-700 font-bold hover:underline flex items-center gap-1 ml-auto">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Borrar datos
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- 4. CUENTAS FIJAS & SUSCRIPCIONES (Con eliminación) -->
+        <section class="glass-card rounded-3xl p-6 md:p-8 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="check-square" class="w-6 h-6 text-sky-500"></i> Cuentas Fijas & Suscripciones 📋
+                    </h2>
+                    <p class="text-sm font-semibold text-slate-700 mt-0.5">Controla tus gastos recurrentes del mes y marca lo que ya pagaste</p>
+                </div>
+                <button onclick="openSubModal()" class="px-5 py-2.5 bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white font-bold rounded-2xl shadow-md transition flex items-center gap-2 text-sm self-start sm:self-auto">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Agregar Suscripción
+                </button>
+            </div>
+
+            <div id="subscriptionsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- Se llenará con JS -->
+            </div>
+        </section>
+
+        <!-- 5. CALCULADOR DE SUEÑOS & METAS -->
+        <section class="glass-card rounded-3xl p-6 md:p-8 relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="calculator" class="w-6 h-6 text-pink-500"></i> Calculador de Sueños & Metas 🌟
+                    </h2>
+                    <p class="text-sm font-semibold text-slate-700 mt-0.5">Calcula tus proyecciones para viajes, compras o metas a futuro</p>
+                </div>
+
+                <div class="flex bg-white/60 p-1.5 rounded-2xl border border-white/80 shadow-inner self-start sm:self-auto">
+                    <button id="tabMode1Btn" onclick="switchCalcMode(1)" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-md">
+                        Monto & Tiempo Meta
+                    </button>
+                    <button id="tabMode2Btn" onclick="switchCalcMode(2)" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 text-slate-700 hover:text-pink-600">
+                        Ahorro Mensual Fijo
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODO 1 -->
+            <div id="calcMode1" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Meta a Ahorrar ($ CLP)</label>
+                        <input type="number" id="calc1Target" placeholder="Ej: 500000" class="glass-input w-full px-4 py-2.5 rounded-2xl text-slate-800 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Plazo Estimado</label>
+                        <input type="number" id="calc1TimeValue" placeholder="Ej: 12" class="glass-input w-full px-4 py-2.5 rounded-2xl text-slate-800 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Unidad de Tiempo</label>
+                        <select id="calc1TimeUnit" class="glass-input w-full px-4 py-2.5 rounded-2xl text-slate-800 font-bold">
+                            <option value="months">Meses</option>
+                            <option value="years">Años</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="calculateGoal1()" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold rounded-2xl shadow-lg transition duration-300 flex items-center justify-center gap-2">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i> Calcular Cuota Mensual
+                </button>
+
+                <div id="result1Box" class="hidden glass-card-subtle rounded-2xl p-6 border-l-4 border-l-pink-500">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-bold uppercase text-pink-600 tracking-wider">Ahorro Mensual Sugerido</span>
+                            <div id="result1Amount" class="text-3xl font-extrabold text-slate-800 mt-1">$0 / mes</div>
+                            <p id="result1Desc" class="text-xs text-slate-700 font-semibold mt-1">Para alcanzar tu meta en el plazo seleccionado.</p>
+                        </div>
+                        <div class="bg-pink-100/90 text-pink-700 p-4 rounded-2xl text-center min-w-[140px]">
+                            <i data-lucide="target" class="w-6 h-6 mx-auto mb-1"></i>
+                            <span class="text-xs font-bold">¡Meta Posible! 🌸</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODO 2 -->
+            <div id="calcMode2" class="hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Ahorro Mensual ($ CLP)</label>
+                        <input type="number" id="calc2Monthly" placeholder="Ej: 30000" class="glass-input w-full px-4 py-2.5 rounded-2xl text-slate-800 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Tiempo Ahorrando</label>
+                        <input type="number" id="calc2TimeValue" placeholder="Ej: 3" class="glass-input w-full px-4 py-2.5 rounded-2xl text-slate-800 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Unidad de Tiempo</label>
+                        <select id="calc2TimeUnit" class="glass-input w-full px-4 py-2.5 rounded-2xl text-slate-800 font-bold">
+                            <option value="years">Años</option>
+                            <option value="months">Meses</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="calculateGoal2()" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white font-bold rounded-2xl shadow-lg transition duration-300 flex items-center justify-center gap-2">
+                    <i data-lucide="trending-up" class="w-5 h-5"></i> Proyectar Ahorro Total
+                </button>
+
+                <div id="result2Box" class="hidden space-y-4">
+                    <div class="glass-card-subtle rounded-2xl p-6 border-l-4 border-l-sky-500 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-bold uppercase text-sky-600 tracking-wider">Ahorro Total Acumulado</span>
+                            <div id="result2Amount" class="text-3xl font-extrabold text-slate-800 mt-1">$0</div>
+                            <p id="result2Desc" class="text-xs text-slate-700 font-semibold mt-1">Monto final estimado.</p>
+                        </div>
+                        <div class="bg-sky-100/90 text-sky-700 p-4 rounded-2xl text-center min-w-[140px]">
+                            <i data-lucide="trophy" class="w-6 h-6 mx-auto mb-1"></i>
+                            <span class="text-xs font-bold">¡Futuro Seguro! 💎</span>
+                        </div>
+                    </div>
+                    <div id="result2Breakdown" class="glass-card-subtle rounded-2xl p-4 text-xs space-y-2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. CAJITAS DE AHORRO / METAS VISUALES -->
+        <section class="glass-card rounded-3xl p-6 md:p-8 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="gift" class="w-6 h-6 text-pink-500"></i> Mis Cajitas de Ahorro 🎁
+                    </h2>
+                    <p class="text-sm font-semibold text-slate-700 mt-0.5">Define tus metas específicas y abónales dinero poco a poco</p>
+                </div>
+                <button onclick="openGoalModal()" class="px-5 py-2.5 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold rounded-2xl shadow-md transition flex items-center gap-2 text-sm self-start sm:self-auto">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Nueva Meta
+                </button>
+            </div>
+
+            <div id="goalsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+                <!-- Se llenará con JS -->
+            </div>
+        </section>
+
+        <!-- 7. SECCIÓN DE REPORTES (COMPARATIVA Y TOP 3 GUSTITOS) -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Comparativa Mes a Mes -->
+            <div class="glass-card rounded-3xl p-6 space-y-3">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-pink-500"></i> Comparativa vs Mes Anterior
+                </h3>
+                <div id="monthComparisonBox" class="p-4 rounded-2xl bg-white/50 border border-white/70 text-sm font-semibold text-slate-800">
+                    Cargando comparativa...
+                </div>
+            </div>
+
+            <!-- Top 3 Gustitos / Ocio -->
+            <div class="glass-card rounded-3xl p-6 space-y-3">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="crown" class="w-5 h-5 text-amber-500"></i> Top 3 Mayor Ocio del Mes
+                </h3>
+                <div id="topLeisureBox" class="space-y-2">
+                    <!-- Se llena con JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. CALENDARIO VISUAL DE GASTOS -->
+        <section class="glass-card rounded-3xl p-6 md:p-8 space-y-4">
+            <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="calendar-days" class="w-6 h-6 text-purple-500"></i> Mapa Visual de Gastos Diarios
+            </h2>
+            <div id="calendarGrid" class="grid grid-cols-7 gap-2 text-center pt-2">
+                <!-- Días de la semana -->
+            </div>
+        </section>
+
+        <!-- 9. MEDALLAS / LOGROS FINANCIEROS -->
+        <section class="glass-card rounded-3xl p-6 md:p-8 space-y-4">
+            <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="award" class="w-6 h-6 text-amber-500"></i> Mis Logros Financieros 🏆
+            </h2>
+            <div id="badgesContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <!-- Se generan dinámicamente -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODALES CUTE INTEGRADOS -->
+
+    <!-- Modal Crear Meta -->
+    <div id="goalModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="glass-card bg-white/90 rounded-3xl p-6 max-w-sm w-full space-y-4 border border-white shadow-2xl">
+            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <span class="text-pink-500">🎁</span> Nueva Meta de Ahorro
+            </h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nombre de la Meta</label>
+                    <input type="text" id="goalModalName" placeholder="Ej: Viaje a la playa ✈️" class="glass-input w-full px-3 py-2 rounded-xl text-xs font-bold text-slate-800">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Monto Objetivo ($ CLP)</label>
+                    <input type="number" id="goalModalTarget" placeholder="Ej: 500000" class="glass-input w-full px-3 py-2 rounded-xl text-xs font-bold text-slate-800">
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-2">
+                <button onclick="closeGoalModal()" class="px-4 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-800">Cancelar</button>
+                <button onclick="saveGoalModal()" class="px-4 py-1.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold rounded-xl text-xs shadow-md">Guardar Meta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Abonar a Meta -->
+    <div id="depositModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="glass-card bg-white/90 rounded-3xl p-6 max-w-sm w-full space-y-4 border border-white shadow-2xl">
+            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <span class="text-pink-500">💖</span> Abonar a Cajita
+            </h3>
+            <p id="depositModalGoalName" class="text-xs font-bold text-pink-600"></p>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Monto a Abonar ($ CLP)</label>
+                <input type="number" id="depositModalAmount" placeholder="Ej: 20000" class="glass-input w-full px-3 py-2 rounded-xl text-xs font-bold text-slate-800">
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-2">
+                <button onclick="closeDepositModal()" class="px-4 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-800">Cancelar</button>
+                <button onclick="saveDepositModal()" class="px-4 py-1.5 bg-pink-500 text-white font-bold rounded-xl text-xs shadow-md">Abonar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Agregar Suscripción -->
+    <div id="subModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="glass-card bg-white/90 rounded-3xl p-6 max-w-sm w-full space-y-4 border border-white shadow-2xl">
+            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <span class="text-sky-500">📋</span> Nueva Cuenta Fija
+            </h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Servicio / Cuenta</label>
+                    <input type="text" id="subModalName" placeholder="Ej: Gimnasio, Netflix 🎬" class="glass-input w-full px-3 py-2 rounded-xl text-xs font-bold text-slate-800">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Monto Mensual ($ CLP)</label>
+                    <input type="number" id="subModalAmount" placeholder="Ej: 15000" class="glass-input w-full px-3 py-2 rounded-xl text-xs font-bold text-slate-800">
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-2">
+                <button onclick="closeSubModal()" class="px-4 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-800">Cancelar</button>
+                <button onclick="saveSubModal()" class="px-4 py-1.5 bg-sky-500 text-white font-bold rounded-xl text-xs shadow-md">Guardar Cuenta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Completo con la Lógica -->
+    <script>
+        let transactions = JSON.parse(localStorage.getItem('pastel_finance_txs')) || [];
+        let savingsGoals = JSON.parse(localStorage.getItem('pastel_finance_goals')) || [
+            { id: 1, name: "Viaje Soñado ✈️", target: 600000, current: 250000 },
+            { id: 2, name: "Fondo Emergencia 🛡️", target: 300000, current: 180000 }
+        ];
+        let subscriptions = JSON.parse(localStorage.getItem('pastel_finance_subs')) || [
+            { id: 1, name: "Netflix 🎬", amount: 10990, paid: false },
+            { id: 2, name: "Spotify 🎵", amount: 4590, paid: true }
+        ];
+        let budgetLimit = parseFloat(localStorage.getItem('pastel_finance_budget')) || 300000;
+        let currentFilter = 'all';
+        let expenseChart = null;
+        let activeDepositGoalId = null;
+
+        const quotes = [
+            "Ahorrar hoy es mimar a tu 'yo' del futuro 🌸",
+            "Cada pequeño paso te acerca a tus sueños grandes ✨",
+            "El mejor momento para cuidar tu dinero es ahora 💖",
+            "¡Tus metas son más alcanzables de lo que crees! 🌟",
+            "Disfruta tus gustitos con responsabilidad y amor 🛍️"
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            const today = new Date();
+            document.getElementById('currentDate').innerText = today.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            document.getElementById('txDate').value = today.toISOString().split('T')[0];
+            document.getElementById('monthFilter').value = today.toISOString().slice(0, 7);
+
+            newQuote();
+            renderApp();
+            initChart();
+        });
+
+        function newQuote() {
+            const random = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('quoteText').innerText = random;
+        }
+
+        // CONTROL INTEGRADO DE PRESUPUESTO
+        function toggleBudgetEdit(show) {
+            const viewContainer = document.getElementById('budgetViewContainer');
+            const editContainer = document.getElementById('budgetEditContainer');
+            const input = document.getElementById('budgetInput');
+
+            if (show) {
+                input.value = budgetLimit;
+                viewContainer.classList.add('hidden');
+                editContainer.classList.remove('hidden');
+                input.focus();
+            } else {
+                viewContainer.classList.remove('hidden');
+                editContainer.classList.add('hidden');
+            }
+        }
+
+        function saveBudgetFromInput() {
+            const inputVal = parseFloat(document.getElementById('budgetInput').value);
+            if (!isNaN(inputVal) && inputVal >= 0) {
+                budgetLimit = inputVal;
+                localStorage.setItem('pastel_finance_budget', budgetLimit);
+                toggleBudgetEdit(false);
+                renderApp();
+            } else {
+                alert("Por favor ingresa un monto válido.");
+            }
+        }
+
+        function formatMoney(amount) {
+            return '$' + Math.round(amount).toLocaleString('es-CL');
+        }
+
+        function switchCalcMode(mode) {
+            const btn1 = document.getElementById('tabMode1Btn');
+            const btn2 = document.getElementById('tabMode2Btn');
+            const mode1 = document.getElementById('calcMode1');
+            const mode2 = document.getElementById('calcMode2');
+
+            if (mode === 1) {
+                btn1.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-md";
+                btn2.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 text-slate-700 hover:text-pink-600";
+                mode1.classList.remove('hidden');
+                mode2.classList.add('hidden');
+            } else {
+                btn2.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md";
+                btn1.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 text-slate-700 hover:text-pink-600";
+                mode2.classList.remove('hidden');
+                mode1.classList.add('hidden');
+            }
+        }
+
+        function calculateGoal1() {
+            const target = parseFloat(document.getElementById('calc1Target').value);
+            const timeVal = parseFloat(document.getElementById('calc1TimeValue').value);
+            const timeUnit = document.getElementById('calc1TimeUnit').value;
+
+            if (!target || target <= 0 || !timeVal || timeVal <= 0) return alert("Por favor ingresa datos válidos.");
+
+            const totalMonths = timeUnit === 'years' ? timeVal * 12 : timeVal;
+            const monthlyPayment = target / totalMonths;
+
+            document.getElementById('result1Amount').innerText = `${formatMoney(monthlyPayment)} / mes`;
+            document.getElementById('result1Desc').innerText = `Guardando esto durante ${totalMonths} meses alcanzarás tu meta de ${formatMoney(target)}.`;
+            document.getElementById('result1Box').classList.remove('hidden');
+
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 }, colors: ['#f472b6', '#38bdf8', '#c084fc'] });
+        }
+
+        function calculateGoal2() {
+            const monthly = parseFloat(document.getElementById('calc2Monthly').value);
+            const timeVal = parseFloat(document.getElementById('calc2TimeValue').value);
+            const timeUnit = document.getElementById('calc2TimeUnit').value;
+
+            if (!monthly || monthly <= 0 || !timeVal || timeVal <= 0) return alert("Por favor ingresa datos válidos.");
+
+            const totalMonths = timeUnit === 'years' ? timeVal * 12 : timeVal;
+            const totalAccumulated = monthly * totalMonths;
+
+            document.getElementById('result2Amount').innerText = formatMoney(totalAccumulated);
+            document.getElementById('result2Desc').innerText = `Ahorrando ${formatMoney(monthly)} cada mes durante ${timeVal} ${timeUnit === 'years' ? (timeVal === 1 ? 'año' : 'años') : (timeVal === 1 ? 'mes' : 'meses')}.`;
+
+            const breakdownEl = document.getElementById('result2Breakdown');
+            breakdownEl.innerHTML = '<span class="font-bold text-slate-800 block mb-1">Proyección de Crecimiento:</span>';
+
+            const steps = Math.min(timeUnit === 'years' ? timeVal : Math.ceil(totalMonths / 3), 5);
+            const stepMonths = totalMonths / steps;
+
+            for (let i = 1; i <= steps; i++) {
+                const currentM = Math.round(stepMonths * i);
+                const currentAmount = monthly * currentM;
+                breakdownEl.innerHTML += `
+                    <div class="flex justify-between items-center bg-white/50 px-3 py-1.5 rounded-lg">
+                        <span>En ${currentM} meses (${(currentM / 12).toFixed(1)} años):</span>
+                        <span class="font-bold text-sky-700">${formatMoney(currentAmount)}</span>
+                    </div>
+                `;
+            }
+
+            document.getElementById('result2Box').classList.remove('hidden');
+            confetti({ particleCount: 60, spread: 70, origin: { y: 0.7 }, colors: ['#38bdf8', '#818cf8', '#f472b6'] });
+        }
+
+        function addTransaction(e) {
+            e.preventDefault();
+            const desc = document.getElementById('txDesc').value.trim();
+            const emoji = document.getElementById('txEmoji').value;
+            const amount = parseFloat(document.getElementById('txAmount').value);
+            const type = document.getElementById('txType').value;
+            const category = document.getElementById('txCategory').value;
+            const date = document.getElementById('txDate').value;
+
+            if (!desc || !amount || amount <= 0) return;
+
+            transactions.unshift({ id: Date.now(), desc: `${emoji} ${desc}`, amount, type, category, date });
+            saveAndRender();
+
+            document.getElementById('txDesc').value = '';
+            document.getElementById('txAmount').value = '';
+        }
+
+        function deleteTransaction(id) {
+            transactions = transactions.filter(t => t.id !== id);
+            saveAndRender();
+        }
+
+        function filterTransactions(type) {
+            currentFilter = type;
+            ['All', 'Income', 'Expense', 'Savings'].forEach(t => {
+                const btn = document.getElementById(`filter${t}Btn`);
+                if (t.toLowerCase() === type) {
+                    btn.className = "px-3 py-1.5 rounded-lg bg-pink-100/90 text-pink-700 font-bold";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900 font-bold";
+                }
+            });
+            renderTable();
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('pastel_finance_txs', JSON.stringify(transactions));
+            localStorage.setItem('pastel_finance_goals', JSON.stringify(savingsGoals));
+            localStorage.setItem('pastel_finance_subs', JSON.stringify(subscriptions));
+            renderApp();
+        }
+
+        function renderApp() {
+            renderBudget();
+            renderStats();
+            renderComparison();
+            renderTopLeisure();
+            renderGoals();
+            renderSubscriptions();
+            renderCalendar();
+            renderBadges();
+            renderTable();
+            updateChart();
+        }
+
+        function renderBudget() {
+            const selectedMonth = document.getElementById('monthFilter').value;
+            let currentExpense = 0;
+
+            transactions.forEach(t => {
+                if (t.date.startsWith(selectedMonth) && (t.type === 'expense' || t.type === 'leisure')) {
+                    currentExpense += t.amount;
+                }
+            });
+
+            document.getElementById('budgetDisplay').innerText = formatMoney(budgetLimit);
+            const percent = budgetLimit > 0 ? Math.min(Math.round((currentExpense / budgetLimit) * 100), 100) : 0;
+            const remaining = Math.max(0, budgetLimit - currentExpense);
+
+            document.getElementById('budgetProgressBar').style.width = `${percent}%`;
+            document.getElementById('budgetRemainingText').innerText = `Disponible: ${formatMoney(remaining)}`;
+            document.getElementById('budgetStatusText').innerText = `Usado: ${formatMoney(currentExpense)} (${percent}%)`;
+        }
+
+        function renderStats() {
+            const selectedMonth = document.getElementById('monthFilter').value;
+            let income = 0, expense = 0, savings = 0, leisure = 0;
+
+            transactions.forEach(t => {
+                if (!selectedMonth || t.date.startsWith(selectedMonth)) {
+                    if (t.type === 'income') income += t.amount;
+                    if (t.type === 'expense') expense += t.amount;
+                    if (t.type === 'savings') savings += t.amount;
+                    if (t.type === 'leisure') { expense += t.amount; leisure += t.amount; }
+                }
+            });
+
+            document.getElementById('statIncome').innerText = formatMoney(income);
+            document.getElementById('statExpense').innerText = formatMoney(expense);
+            document.getElementById('statSavings').innerText = formatMoney(savings);
+            document.getElementById('statLeisure').innerText = formatMoney(leisure);
+        }
+
+        function renderComparison() {
+            const selected = document.getElementById('monthFilter').value;
+            if (!selected) return;
+
+            const [year, month] = selected.split('-').map(Number);
+            const prevDate = new Date(year, month - 2, 1);
+            const prevMonthStr = prevDate.toISOString().slice(0, 7);
+
+            let currentExpense = 0, prevExpense = 0;
+
+            transactions.forEach(t => {
+                if ((t.type === 'expense' || t.type === 'leisure')) {
+                    if (t.date.startsWith(selected)) currentExpense += t.amount;
+                    if (t.date.startsWith(prevMonthStr)) prevExpense += t.amount;
+                }
+            });
+
+            const box = document.getElementById('monthComparisonBox');
+            if (prevExpense === 0) {
+                box.innerHTML = `<span>Gastaste <strong>${formatMoney(currentExpense)}</strong> este mes. No hay registros suficientes del mes anterior para comparar.</span>`;
+            } else {
+                const diff = currentExpense - prevExpense;
+                const percent = Math.round((diff / prevExpense) * 100);
+                if (diff < 0) {
+                    box.innerHTML = `🎉 <span class="text-emerald-700 font-bold">¡Excelente! Gastaste un ${Math.abs(percent)}% menos</span> (${formatMoney(Math.abs(diff))}) que el mes anterior (${formatMoney(prevExpense)}).`;
+                } else if (diff > 0) {
+                    box.innerHTML = `⚠️ <span class="text-rose-600 font-bold">Gastaste un ${percent}% más</span> (${formatMoney(diff)}) que el mes anterior (${formatMoney(prevExpense)}).`;
+                } else {
+                    box.innerHTML = `⚖️ Gastaste exactamente lo mismo que el mes anterior (${formatMoney(currentExpense)}).`;
+                }
+            }
+        }
+
+        function renderTopLeisure() {
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const leisureTxs = transactions.filter(t => (!selectedMonth || t.date.startsWith(selectedMonth)) && t.type === 'leisure');
+            
+            const container = document.getElementById('topLeisureBox');
+            container.innerHTML = '';
+
+            if (leisureTxs.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-600 italic">No hay registrados gustitos u ocio este mes.</p>`;
+                return;
+            }
+
+            const sorted = [...leisureTxs].sort((a, b) => b.amount - a.amount).slice(0, 3);
+            const medals = ['🥇', '🥈', '🥉'];
+
+            sorted.forEach((item, idx) => {
+                container.innerHTML += `
+                    <div class="flex items-center justify-between bg-white/60 px-3 py-2 rounded-xl text-xs font-bold">
+                        <span>${medals[idx]} ${item.desc}</span>
+                        <span class="text-purple-700 font-extrabold">${formatMoney(item.amount)}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function renderGoals() {
+            const container = document.getElementById('goalsContainer');
+            container.innerHTML = '';
+
+            if (savingsGoals.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-600 font-bold col-span-full">Aún no tienes metas creadas.</p>`;
+                return;
+            }
+
+            savingsGoals.forEach(g => {
+                const percent = Math.min(Math.round((g.current / g.target) * 100), 100);
+                container.innerHTML += `
+                    <div class="glass-card-subtle p-4 rounded-2xl space-y-3 relative">
+                        <button onclick="deleteGoal(${g.id})" class="absolute top-3 right-3 text-slate-400 hover:text-rose-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+                        <h4 class="font-bold text-slate-800 text-sm">${g.name}</h4>
+                        <div class="flex justify-between text-xs font-semibold text-slate-700">
+                            <span>${formatMoney(g.current)}</span>
+                            <span class="text-pink-600 font-bold">${percent}%</span>
+                        </div>
+                        <div class="w-full bg-white/60 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-pink-400 to-purple-500 h-full rounded-full" style="width: ${percent}%"></div>
+                        </div>
+                        <button onclick="openDepositModal(${g.id})" class="w-full py-1.5 bg-white/80 hover:bg-white text-xs font-bold text-pink-600 rounded-xl border border-pink-200 transition">
+                            + Abonar a Meta
+                        </button>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function openGoalModal() {
+            document.getElementById('goalModalName').value = '';
+            document.getElementById('goalModalTarget').value = '';
+            document.getElementById('goalModal').classList.remove('hidden');
+        }
+
+        function closeGoalModal() {
+            document.getElementById('goalModal').classList.add('hidden');
+        }
+
+        function saveGoalModal() {
+            const name = document.getElementById('goalModalName').value.trim();
+            const target = parseFloat(document.getElementById('goalModalTarget').value);
+            if (name && target > 0) {
+                savingsGoals.push({ id: Date.now(), name, target, current: 0 });
+                saveAndRender();
+                closeGoalModal();
+            } else {
+                alert("Por favor ingresa un nombre y un monto válido.");
+            }
+        }
+
+        function openDepositModal(id) {
+            const goal = savingsGoals.find(g => g.id === id);
+            if (!goal) return;
+            activeDepositGoalId = id;
+            document.getElementById('depositModalGoalName').innerText = `Meta: ${goal.name}`;
+            document.getElementById('depositModalAmount').value = '';
+            document.getElementById('depositModal').classList.remove('hidden');
+        }
+
+        function closeDepositModal() {
+            activeDepositGoalId = null;
+            document.getElementById('depositModal').classList.add('hidden');
+        }
+
+        function saveDepositModal() {
+            const amount = parseFloat(document.getElementById('depositModalAmount').value);
+            if (activeDepositGoalId && amount > 0) {
+                const goal = savingsGoals.find(g => g.id === activeDepositGoalId);
+                if (goal) {
+                    goal.current += amount;
+                    if (goal.current >= goal.target) {
+                        confetti({ particleCount: 80, spread: 80, origin: { y: 0.6 } });
+                    }
+                    saveAndRender();
+                    closeDepositModal();
+                }
+            } else {
+                alert("Por favor ingresa un monto válido.");
+            }
+        }
+
+        function deleteGoal(id) {
+            savingsGoals = savingsGoals.filter(g => g.id !== id);
+            saveAndRender();
+        }
+
+        function renderSubscriptions() {
+            const container = document.getElementById('subscriptionsContainer');
+            container.innerHTML = '';
+
+            subscriptions.forEach(s => {
+                container.innerHTML += `
+                    <div class="flex items-center justify-between p-3 rounded-2xl ${s.paid ? 'bg-emerald-100/60 border border-emerald-200' : 'bg-white/50 border border-white/70'}">
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">${s.name}</p>
+                            <p class="text-xs font-semibold text-slate-600">${formatMoney(s.amount)}</p>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="toggleSub(${s.id})" class="px-3 py-1 rounded-xl text-xs font-bold ${s.paid ? 'bg-emerald-500 text-white' : 'bg-white text-slate-600 border border-slate-200'}">
+                                ${s.paid ? 'Pagado ✓' : 'Pendiente'}
+                            </button>
+                            <button onclick="deleteSub(${s.id})" class="text-slate-400 hover:text-rose-500 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function toggleSub(id) {
+            const sub = subscriptions.find(s => s.id === id);
+            if (sub) {
+                sub.paid = !sub.paid;
+                saveAndRender();
+            }
+        }
+
+        function deleteSub(id) {
+            subscriptions = subscriptions.filter(s => s.id !== id);
+            saveAndRender();
+        }
+
+        function openSubModal() {
+            document.getElementById('subModalName').value = '';
+            document.getElementById('subModalAmount').value = '';
+            document.getElementById('subModal').classList.remove('hidden');
+        }
+
+        function closeSubModal() {
+            document.getElementById('subModal').classList.add('hidden');
+        }
+
+        function saveSubModal() {
+            const name = document.getElementById('subModalName').value.trim();
+            const amount = parseFloat(document.getElementById('subModalAmount').value);
+            if (name && amount > 0) {
+                subscriptions.push({ id: Date.now(), name, amount, paid: false });
+                saveAndRender();
+                closeSubModal();
+            } else {
+                alert("Por favor ingresa datos válidos.");
+            }
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const selectedMonth = document.getElementById('monthFilter').value;
+            if (!selectedMonth) return;
+
+            const [year, month] = selectedMonth.split('-').map(Number);
+            const daysInMonth = new Date(year, month, 0).getDate();
+
+            grid.innerHTML = '';
+            const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            daysOfWeek.forEach(d => grid.innerHTML += `<div class="text-xs font-bold text-slate-500 pb-1">${d}</div>`);
+
+            const firstDayIndex = new Date(year, month - 1, 1).getDay();
+            for (let i = 0; i < firstDayIndex; i++) {
+                grid.innerHTML += `<div></div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayStr = `${selectedMonth}-${String(day).padStart(2, '0')}`;
+                const dayTxs = transactions.filter(t => t.date === dayStr && (t.type === 'expense' || t.type === 'leisure'));
+                const hasExpense = dayTxs.length > 0;
+
+                grid.innerHTML += `
+                    <div class="p-1.5 rounded-xl text-xs font-bold ${hasExpense ? 'bg-rose-200/80 text-rose-800' : 'bg-white/40 text-slate-600'}">
+                        ${day}
+                        ${hasExpense ? '<span class="block text-[9px] font-extrabold">💸</span>' : ''}
+                    </div>
+                `;
+            }
+        }
+
+        function renderBadges() {
+            const container = document.getElementById('badgesContainer');
+            container.innerHTML = '';
+
+            const badges = [
+                { title: "Primera Meta 🎯", unlocked: savingsGoals.some(g => g.current > 0) },
+                { title: "Súper Ahorradora 🐷", unlocked: transactions.some(t => t.type === 'savings') },
+                { title: "Bajo Control 🛡️", unlocked: transactions.length > 5 },
+                { title: "Cuentas al Día 📋", unlocked: subscriptions.length > 0 && subscriptions.every(s => s.paid) }
+            ];
+
+            badges.forEach(b => {
+                container.innerHTML += `
+                    <div class="p-3 rounded-2xl text-center border ${b.unlocked ? 'bg-amber-100/70 border-amber-300 text-amber-900' : 'bg-white/30 border-white/40 text-slate-400 grayscale'}">
+                        <div class="text-xl mb-1">${b.unlocked ? '🏆' : '🔒'}</div>
+                        <span class="text-xs font-bold block">${b.title}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('txTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            const filtered = transactions.filter(t => {
+                const matchesMonth = !selectedMonth || t.date.startsWith(selectedMonth);
+                const matchesFilter = currentFilter === 'all' ? true : (currentFilter === 'expense' ? (t.type === 'expense' || t.type === 'leisure') : t.type === currentFilter);
+                const matchesSearch = t.desc.toLowerCase().includes(searchQuery) || t.category.toLowerCase().includes(searchQuery);
+
+                return matchesMonth && matchesFilter && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                filtered.forEach(t => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-white/40 transition duration-200";
+
+                    let typeBadge = '';
+                    let amountColor = '';
+
+                    switch(t.type) {
+                        case 'income':
+                            typeBadge = '<span class="bg-emerald-100/90 text-emerald-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full">Ingreso</span>';
+                            amountColor = 'text-emerald-700 font-extrabold';
+                            break;
+                        case 'expense':
+                            typeBadge = '<span class="bg-rose-100/90 text-rose-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full">Gasto</span>';
+                            amountColor = 'text-rose-700 font-extrabold';
+                            break;
+                        case 'savings':
+                            typeBadge = '<span class="bg-sky-100/90 text-sky-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full">Ahorro</span>';
+                            amountColor = 'text-sky-700 font-extrabold';
+                            break;
+                        case 'leisure':
+                            typeBadge = '<span class="bg-purple-100/90 text-purple-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full">Ocio</span>';
+                            amountColor = 'text-purple-700 font-extrabold';
+                            break;
+                    }
+
+                    tr.innerHTML = `
+                        <td class="py-3 px-3 text-xs font-bold text-slate-700">${t.date}</td>
+                        <td class="py-3 px-3 font-bold text-slate-800">${t.desc}</td>
+                        <td class="py-3 px-3">${typeBadge} <span class="text-xs text-slate-700 font-semibold ml-1">${t.category}</span></td>
+                        <td class="py-3 px-3 text-right ${amountColor}">${t.type === 'income' ? '+' : '-'}${formatMoney(t.amount)}</td>
+                        <td class="py-3 px-2 text-center">
+                            <button onclick="deleteTransaction(${t.id})" class="p-1 text-slate-500 hover:text-rose-600 transition rounded-lg hover:bg-rose-100/50">
+                                <i data-lucide="trash" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                lucide.createIcons();
+            }
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            expenseChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: ['#f472b6', '#38bdf8', '#c084fc', '#fb7185', '#34d399', '#fbbf24', '#a78bfa'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '70%'
+                }
+            });
+            updateChart();
+        }
+
+        function updateChart() {
+            if (!expenseChart) return;
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const categoryTotals = {};
+
+            transactions.filter(t => (!selectedMonth || t.date.startsWith(selectedMonth)) && (t.type === 'expense' || t.type === 'leisure')).forEach(t => {
+                categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
+            });
+
+            const labels = Object.keys(categoryTotals);
+            const data = Object.values(categoryTotals);
+
+            expenseChart.data.labels = labels.length ? labels : ['Sin Gastos'];
+            expenseChart.data.datasets[0].data = data.length ? data : [1];
+            expenseChart.update();
+        }
+
+        function exportToCSV() {
+            if (transactions.length === 0) return alert("No hay movimientos para exportar.");
+            let csv = "Fecha,Concepto,Tipo,Categoria,Monto CLP\n";
+            transactions.forEach(t => {
+                csv += `"${t.date}","${t.desc}","${t.type}","${t.category}","${t.amount}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `finanzas_clp_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        function exportJSON() {
+            const backup = { transactions, savingsGoals, subscriptions, budgetLimit };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup, null, 2));
+            const link = document.createElement("a");
+            link.href = dataStr;
+            link.download = `respaldo_finanzas_${new Date().toISOString().slice(0,10)}.json`;
+            link.click();
+        }
+
+        function importJSON(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    if (Array.isArray(data)) {
+                        transactions = data;
+                    } else {
+                        transactions = data.transactions || [];
+                        savingsGoals = data.savingsGoals || [];
+                        subscriptions = data.subscriptions || [];
+                        budgetLimit = data.budgetLimit || 300000;
+                    }
+                    saveAndRender();
+                    alert("¡Respaldo cargado con éxito! 🌸");
+                } catch(err) {
+                    alert("El archivo seleccionado no es válido.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (confirm("¿Estás segura de borrar todo el historial y configuraciones?")) {
+                transactions = [];
+                savingsGoals = [];
+                subscriptions = [];
+                saveAndRender();
+            }
+        }
+    </script>
+</body>
+</html>
