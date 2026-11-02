@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FinanzasSiboney 💖</title>
 
-    <!-- Favicon personalizado con emoji de estrella brillante -->
+    <!-- Favicon personalizado -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💖</text></svg>">
 
     <!-- Tailwind CSS CDN -->
@@ -39,7 +39,6 @@
             font-family: 'Fredoka', cursive;
         }
 
-        /* Glassmorphism con transparencias personalizadas */
         .glass-card {
             background: rgba(253, 175, 187, 0.747);
             backdrop-filter: blur(16px);
@@ -95,7 +94,6 @@
 
     <!-- Header Principal -->
     <header class="max-w-6xl mx-auto pt-6 px-4 sm:px-6 mb-6">
-        <!-- Banner Frase Motivacional -->
         <div class="glass-card rounded-2xl px-5 py-2.5 mb-4 flex items-center justify-between text-xs sm:text-sm font-bold text-slate-800">
             <div class="flex items-center gap-2">
                 <span class="text-base">✨</span>
@@ -117,7 +115,6 @@
                 </div>
             </div>
 
-            <!-- Estado de Sincronización + Fecha -->
             <div class="flex flex-col sm:flex-row items-center gap-3">
                 <span id="syncStatus" class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold border border-yellow-200 flex items-center gap-1.5 shadow-sm">
                     <i data-lucide="refresh-cw" class="w-3.5 h-3.5 animate-spin"></i> Conectando...
@@ -133,14 +130,13 @@
     <!-- Contenido Principal -->
     <main class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
 
-        <!-- 1. PRESUPUESTO MÁXIMO DE GASTOS CON SALDO RESTANTE -->
+        <!-- 1. PRESUPUESTO MÁXIMO DE GASTOS -->
         <section class="glass-card rounded-3xl p-5 space-y-3">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm font-bold">
                 <div class="flex flex-wrap items-center gap-2">
                     <i data-lucide="target" class="w-4 h-4 text-pink-500"></i>
                     <span>Presupuesto Máximo del Mes:</span>
                     
-                    <!-- Vista de Monto con Botón para Editar -->
                     <div id="budgetViewContainer" class="flex items-center gap-2">
                         <span id="budgetDisplay" class="text-pink-600 font-extrabold text-base">$0</span>
                         <button onclick="toggleBudgetEdit(true)" class="bg-white/60 hover:bg-white text-pink-600 px-2.5 py-1 rounded-xl border border-white/80 text-xs font-bold transition flex items-center gap-1 shadow-sm">
@@ -148,7 +144,6 @@
                         </button>
                     </div>
 
-                    <!-- Input Integrado en la Tarjeta -->
                     <div id="budgetEditContainer" class="hidden flex items-center gap-2">
                         <input type="number" id="budgetInput" placeholder="Ej: 300000" class="glass-input px-3 py-1 rounded-xl text-xs font-bold text-slate-800 w-32">
                         <button onclick="saveBudgetFromInput()" class="bg-pink-500 hover:bg-pink-600 text-white px-3 py-1 rounded-xl text-xs font-bold transition shadow-md">
@@ -180,7 +175,6 @@
                 <input type="month" id="monthFilter" onchange="renderApp()" class="glass-input px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800">
             </div>
 
-            <!-- Fila de Tarjetas KPI -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
                 <div class="glass-card rounded-3xl p-5 transform hover:-translate-y-1 transition duration-300">
                     <div class="flex items-center justify-between mb-3">
@@ -220,9 +214,8 @@
             </div>
         </section>
 
-        <!-- 3. AGREGAR MOVIMIENTO + HISTORIAL DE MOVIMIENTOS -->
+        <!-- 3. FORMULARIO + HISTORIAL -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Formulario de Registro -->
             <section class="glass-card rounded-3xl p-6 md:p-7 space-y-5">
                 <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
                     <i data-lucide="plus-circle" class="w-5 h-5 text-pink-500"></i> Agregar Movimiento
@@ -299,31 +292,27 @@
                 </div>
             </section>
 
-            <!-- Historial de Movimientos -->
             <section class="lg:col-span-2 glass-card rounded-3xl p-6 md:p-7 space-y-5 flex flex-col justify-between">
                 <div>
-                    <!-- Encabezado con Buscador y Filtros -->
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
                             <i data-lucide="list" class="w-5 h-5 text-sky-500"></i> Historial de Movimientos
                         </h2>
 
-                        <!-- Buscador -->
                         <div class="relative w-full sm:w-48">
                             <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400"></i>
                             <input type="text" id="searchInput" oninput="renderTable()" placeholder="Buscar..." class="glass-input w-full pl-8 pr-3 py-1.5 rounded-xl text-xs font-bold text-slate-800">
                         </div>
                     </div>
 
-                    <!-- Botones Filtros por Tipo -->
-                    <div class="flex items-center gap-1.5 bg-white/50 p-1 rounded-xl border border-white/60 text-xs font-bold mb-4">
+                    <div class="flex items-center gap-1.5 bg-white/50 p-1 rounded-xl border border-white/60 text-xs font-bold mb-4 overflow-x-auto">
                         <button onclick="filterTransactions('all')" id="filterAllBtn" class="px-3 py-1.5 rounded-lg bg-pink-100/90 text-pink-700">Todos</button>
                         <button onclick="filterTransactions('income')" id="filterIncomeBtn" class="px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900">Ingresos</button>
                         <button onclick="filterTransactions('expense')" id="filterExpenseBtn" class="px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900">Gastos</button>
                         <button onclick="filterTransactions('savings')" id="filterSavingsBtn" class="px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900">Ahorros</button>
+                        <button onclick="filterTransactions('leisure')" id="filterLeisureBtn" class="px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900">Gustitos</button>
                     </div>
 
-                    <!-- Tabla de Registros -->
                     <div class="overflow-x-auto max-h-[420px] overflow-y-auto pr-1">
                         <table class="w-full text-left text-sm">
                             <thead class="text-xs uppercase text-slate-700 border-b border-white/60 sticky top-0 bg-white/80 backdrop-blur-md">
@@ -346,7 +335,6 @@
                     </div>
                 </div>
 
-                <!-- Footer del Historial: Exportar e Importar -->
                 <div class="pt-4 border-t border-white/40 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-700 font-semibold">
                     <div class="flex items-center gap-2">
                         <button onclick="exportToCSV()" class="bg-white/60 hover:bg-white/90 px-3 py-1.5 rounded-xl border border-white/80 flex items-center gap-1.5 font-bold transition">
@@ -368,7 +356,7 @@
             </section>
         </div>
 
-        <!-- 4. CUENTAS FIJAS & SUSCRIPCIONES (Con eliminación) -->
+        <!-- 4. CUENTAS FIJAS & SUSCRIPCIONES -->
         <section class="glass-card rounded-3xl p-6 md:p-8 space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -382,9 +370,7 @@
                 </button>
             </div>
 
-            <div id="subscriptionsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <!-- Se llenará con JS -->
-            </div>
+            <div id="subscriptionsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
         </section>
 
         <!-- 5. CALCULADOR DE SUEÑOS & METAS -->
@@ -501,14 +487,11 @@
                 </button>
             </div>
 
-            <div id="goalsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-                <!-- Se llenará con JS -->
-            </div>
+            <div id="goalsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5"></div>
         </section>
 
-        <!-- 7. SECCIÓN DE REPORTES (COMPARATIVA Y TOP 3 GUSTITOS) -->
+        <!-- 7. SECCIÓN DE REPORTES -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Comparativa Mes a Mes -->
             <div class="glass-card rounded-3xl p-6 space-y-3">
                 <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                     <i data-lucide="trending-up" class="w-5 h-5 text-pink-500"></i> Comparativa vs Mes Anterior
@@ -518,14 +501,11 @@
                 </div>
             </div>
 
-            <!-- Top 3 Gustitos / Ocio -->
             <div class="glass-card rounded-3xl p-6 space-y-3">
                 <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                     <i data-lucide="crown" class="w-5 h-5 text-amber-500"></i> Top 3 Mayor Ocio del Mes
                 </h3>
-                <div id="topLeisureBox" class="space-y-2">
-                    <!-- Se llena con JS -->
-                </div>
+                <div id="topLeisureBox" class="space-y-2"></div>
             </div>
         </section>
 
@@ -534,27 +514,23 @@
             <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
                 <i data-lucide="calendar-days" class="w-6 h-6 text-purple-500"></i> Mapa Visual de Gastos Diarios
             </h2>
-            <div id="calendarGrid" class="grid grid-cols-7 gap-2 text-center pt-2">
-                <!-- Días de la semana -->
-            </div>
+            <div id="calendarGrid" class="grid grid-cols-7 gap-2 text-center pt-2"></div>
         </section>
 
-        <!-- 9. MEDALLAS / LOGROS FINANCIEROS -->
+        <!-- 9. MEDALLAS / LOGROS -->
         <section class="glass-card rounded-3xl p-6 md:p-8 space-y-4">
             <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
                 <i data-lucide="award" class="w-6 h-6 text-amber-500"></i> Mis Logros Financieros 🏆
             </h2>
-            <div id="badgesContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <!-- Se generan dinámicamente -->
-            </div>
+            <div id="badgesContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
         </section>
 
     </main>
 
-    <!-- MODALES CUTE INTEGRADOS -->
+    <!-- MODALES INTEGRADOS -->
 
     <!-- Modal Crear Meta -->
-    <div id="goalModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div id="goalModal" onclick="closeModalOnBackdrop(event, 'goalModal')" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="glass-card bg-white/90 rounded-3xl p-6 max-w-sm w-full space-y-4 border border-white shadow-2xl">
             <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <span class="text-pink-500">🎁</span> Nueva Meta de Ahorro
@@ -577,7 +553,7 @@
     </div>
 
     <!-- Modal Abonar a Meta -->
-    <div id="depositModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div id="depositModal" onclick="closeModalOnBackdrop(event, 'depositModal')" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="glass-card bg-white/90 rounded-3xl p-6 max-w-sm w-full space-y-4 border border-white shadow-2xl">
             <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <span class="text-pink-500">💖</span> Abonar a Cajita
@@ -595,7 +571,7 @@
     </div>
 
     <!-- Modal Agregar Suscripción -->
-    <div id="subModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div id="subModal" onclick="closeModalOnBackdrop(event, 'subModal')" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="glass-card bg-white/90 rounded-3xl p-6 max-w-sm w-full space-y-4 border border-white shadow-2xl">
             <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <span class="text-sky-500">📋</span> Nueva Cuenta Fija
@@ -617,9 +593,8 @@
         </div>
     </div>
 
-    <!-- Script Completo con la Lógica de Firebase Realtime Sync -->
+    <!-- Script Completo con Corrección Total de Bugs -->
     <script>
-        // Configuración con tus credenciales reales de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAg8cp74XMwu-T1U9Wmt54KgSXXY7oWiG0",
             authDomain: "finanzassiboney.firebaseapp.com",
@@ -630,21 +605,13 @@
             appId: "1:697075266664:web:d71d614bd2e65a816377dd"
         };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const appRef = db.ref('finanzas_siboney');
 
-        // Variables de estado local en memoria
         let transactions = [];
-        let savingsGoals = [
-            { id: 1, name: "Viaje Soñado ✈️", target: 600000, current: 250000 },
-            { id: 2, name: "Fondo Emergencia 🛡️", target: 300000, current: 180000 }
-        ];
-        let subscriptions = [
-            { id: 1, name: "Netflix 🎬", amount: 10990, paid: false },
-            { id: 2, name: "Spotify 🎵", amount: 4590, paid: true }
-        ];
+        let savingsGoals = [];
+        let subscriptions = [];
         let budgetLimit = 300000;
         let currentFilter = 'all';
         let expenseChart = null;
@@ -658,17 +625,33 @@
             "Disfruta tus gustitos con responsabilidad y amor 🛍️"
         ];
 
+        // FUNCIONES DE FECHA LOCAL (Sin desfases UTC por la noche)
+        function getLocalDateString(dateObj = new Date()) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function getLocalMonthString(dateObj = new Date()) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            return `${year}-${month}`;
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             const today = new Date();
             document.getElementById('currentDate').innerText = today.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-            document.getElementById('txDate').value = today.toISOString().split('T')[0];
-            document.getElementById('monthFilter').value = today.toISOString().slice(0, 7);
+            
+            // Asignación correcta de fecha y mes local
+            document.getElementById('txDate').value = getLocalDateString(today);
+            document.getElementById('monthFilter').value = getLocalMonthString(today);
 
             newQuote();
             initChart();
 
-            // Escuchar cambios en tiempo real desde Firebase (Nube ➔ App)
+            // Escuchar cambios de Firebase sin inyectar datos por defecto al estar vacío
             appRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -677,8 +660,10 @@
                     subscriptions = data.subscriptions || [];
                     budgetLimit = data.budgetLimit !== undefined ? data.budgetLimit : 300000;
                 } else {
-                    // Cargar valores por defecto si la base de datos está vacía
-                    saveToFirebase();
+                    transactions = [];
+                    savingsGoals = [];
+                    subscriptions = [];
+                    budgetLimit = 300000;
                 }
 
                 renderApp();
@@ -692,7 +677,6 @@
             });
         });
 
-        // Función central para subir los cambios a Firebase en tiempo real
         function saveToFirebase() {
             appRef.set({
                 transactions: transactions,
@@ -707,7 +691,6 @@
             document.getElementById('quoteText').innerText = random;
         }
 
-        // CONTROL INTEGRADO DE PRESUPUESTO
         function toggleBudgetEdit(show) {
             const viewContainer = document.getElementById('budgetViewContainer');
             const editContainer = document.getElementById('budgetEditContainer');
@@ -729,6 +712,7 @@
             if (!isNaN(inputVal) && inputVal >= 0) {
                 budgetLimit = inputVal;
                 saveToFirebase();
+                renderApp();
                 toggleBudgetEdit(false);
             } else {
                 alert("Por favor ingresa un monto válido.");
@@ -822,9 +806,7 @@
 
             transactions.unshift({ id: Date.now(), desc: `${emoji} ${desc}`, amount, type, category, date });
             saveToFirebase();
-
-            // NUEVO: Cambiar automáticamente el filtro visual al mes de la fecha ingresada
-            document.getElementById('monthFilter').value = date.slice(0, 7);
+            renderApp(); // Renderizado inmediato local
 
             document.getElementById('txDesc').value = '';
             document.getElementById('txAmount').value = '';
@@ -834,16 +816,20 @@
         function deleteTransaction(id) {
             transactions = transactions.filter(t => t.id !== id);
             saveToFirebase();
+            renderApp();
         }
 
         function filterTransactions(type) {
             currentFilter = type;
-            ['All', 'Income', 'Expense', 'Savings'].forEach(t => {
+            const btnTypes = ['All', 'Income', 'Expense', 'Savings', 'Leisure'];
+            btnTypes.forEach(t => {
                 const btn = document.getElementById(`filter${t}Btn`);
-                if (t.toLowerCase() === type) {
-                    btn.className = "px-3 py-1.5 rounded-lg bg-pink-100/90 text-pink-700 font-bold";
-                } else {
-                    btn.className = "px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900 font-bold";
+                if (btn) {
+                    if (t.toLowerCase() === type) {
+                        btn.className = "px-3 py-1.5 rounded-lg bg-pink-100/90 text-pink-700 font-bold";
+                    } else {
+                        btn.className = "px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900 font-bold";
+                    }
                 }
             });
             renderTable();
@@ -900,13 +886,19 @@
             document.getElementById('statLeisure').innerText = formatMoney(leisure);
         }
 
+        // CÁLCULO DE MES ANTERIOR CORREGIDO (Aritmética limpia de números)
         function renderComparison() {
             const selected = document.getElementById('monthFilter').value;
             if (!selected) return;
 
             const [year, month] = selected.split('-').map(Number);
-            const prevDate = new Date(year, month - 2, 1);
-            const prevMonthStr = prevDate.toISOString().slice(0, 7);
+            let prevYear = year;
+            let prevMonth = month - 1;
+            if (prevMonth === 0) {
+                prevMonth = 12;
+                prevYear = year - 1;
+            }
+            const prevMonthStr = `${prevYear}-${String(prevMonth).padStart(2, '0')}`;
 
             let currentExpense = 0, prevExpense = 0;
 
@@ -919,7 +911,7 @@
 
             const box = document.getElementById('monthComparisonBox');
             if (prevExpense === 0) {
-                box.innerHTML = `<span>Gastaste <strong>${formatMoney(currentExpense)}</strong> este mes. No hay registros suficientes del mes anterior para comparar.</span>`;
+                box.innerHTML = `<span>Gastaste <strong>${formatMoney(currentExpense)}</strong> este mes. No hay registros suficientes del mes anterior (${prevMonthStr}) para comparar.</span>`;
             } else {
                 const diff = currentExpense - prevExpense;
                 const percent = Math.round((diff / prevExpense) * 100);
@@ -1005,6 +997,7 @@
             if (name && target > 0) {
                 savingsGoals.push({ id: Date.now(), name, target, current: 0 });
                 saveToFirebase();
+                renderApp();
                 closeGoalModal();
             } else {
                 alert("Por favor ingresa un nombre y un monto válido.");
@@ -1025,16 +1018,28 @@
             document.getElementById('depositModal').classList.add('hidden');
         }
 
+        // REGISTRA AUTOMÁTICAMENTE EL GASTO/AHORRO AL ABONAR
         function saveDepositModal() {
             const amount = parseFloat(document.getElementById('depositModalAmount').value);
             if (activeDepositGoalId && amount > 0) {
                 const goal = savingsGoals.find(g => g.id === activeDepositGoalId);
                 if (goal) {
                     goal.current += amount;
+                    
+                    transactions.unshift({
+                        id: Date.now(),
+                        desc: `🏦 Abono a meta: ${goal.name}`,
+                        amount: amount,
+                        type: 'savings',
+                        category: 'Otros',
+                        date: getLocalDateString()
+                    });
+
                     if (goal.current >= goal.target) {
                         confetti({ particleCount: 80, spread: 80, origin: { y: 0.6 } });
                     }
                     saveToFirebase();
+                    renderApp();
                     closeDepositModal();
                 }
             } else {
@@ -1045,11 +1050,17 @@
         function deleteGoal(id) {
             savingsGoals = savingsGoals.filter(g => g.id !== id);
             saveToFirebase();
+            renderApp();
         }
 
         function renderSubscriptions() {
             const container = document.getElementById('subscriptionsContainer');
             container.innerHTML = '';
+
+            if (subscriptions.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-600 font-bold col-span-full">No hay cuentas fijas configuradas.</p>`;
+                return;
+            }
 
             subscriptions.forEach(s => {
                 container.innerHTML += `
@@ -1070,17 +1081,32 @@
             lucide.createIcons();
         }
 
+        // CREA UN MOVIENTO DE GASTO AUTOMÁTICO AL MARCAR PAGADO
         function toggleSub(id) {
             const sub = subscriptions.find(s => s.id === id);
             if (sub) {
                 sub.paid = !sub.paid;
+                
+                if (sub.paid) {
+                    transactions.unshift({
+                        id: Date.now(),
+                        desc: `📋 Cuenta pagada: ${sub.name}`,
+                        amount: sub.amount,
+                        type: 'expense',
+                        category: 'Servicios/Cuentas',
+                        date: getLocalDateString()
+                    });
+                }
+
                 saveToFirebase();
+                renderApp();
             }
         }
 
         function deleteSub(id) {
             subscriptions = subscriptions.filter(s => s.id !== id);
             saveToFirebase();
+            renderApp();
         }
 
         function openSubModal() {
@@ -1099,9 +1125,16 @@
             if (name && amount > 0) {
                 subscriptions.push({ id: Date.now(), name, amount, paid: false });
                 saveToFirebase();
+                renderApp();
                 closeSubModal();
             } else {
                 alert("Por favor ingresa datos válidos.");
+            }
+        }
+
+        function closeModalOnBackdrop(e, modalId) {
+            if (e.target.id === modalId) {
+                document.getElementById(modalId).classList.add('hidden');
             }
         }
 
@@ -1268,7 +1301,7 @@
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = `finanzas_clp_${new Date().toISOString().slice(0,10)}.csv`;
+            link.download = `finanzas_clp_${getLocalDateString()}.csv`;
             link.click();
         }
 
@@ -1277,10 +1310,11 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup, null, 2));
             const link = document.createElement("a");
             link.href = dataStr;
-            link.download = `respaldo_finanzas_${new Date().toISOString().slice(0,10)}.json`;
+            link.download = `respaldo_finanzas_${getLocalDateString()}.json`;
             link.click();
         }
 
+        // CORRECCIÓN AL CARGAR RESPALDOS (Conserva presupuesto en $0 si existía)
         function importJSON(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -1294,9 +1328,10 @@
                         transactions = data.transactions || [];
                         savingsGoals = data.savingsGoals || [];
                         subscriptions = data.subscriptions || [];
-                        budgetLimit = data.budgetLimit || 300000;
+                        budgetLimit = data.budgetLimit !== undefined ? data.budgetLimit : 300000;
                     }
                     saveToFirebase();
+                    renderApp();
                     alert("¡Respaldo cargado con éxito! 🌸");
                 } catch(err) {
                     alert("El archivo seleccionado no es válido.");
@@ -1312,6 +1347,7 @@
                 subscriptions = [];
                 budgetLimit = 300000;
                 saveToFirebase();
+                renderApp();
             }
         }
     </script>
