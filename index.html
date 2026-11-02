@@ -171,7 +171,7 @@
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div class="flex items-center gap-2">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                        <i data-lucide="filter" class="w-4 h-4 text-pink-500"></i> Filtrar Periodo:
+                        <i data-lucide="filter" class="w-4 h-4 text-pink-500"></i> Ciclo Financiero:
                     </h3>
                     <input type="month" id="monthFilter" onchange="renderApp()" class="glass-input px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800">
                 </div>
@@ -179,10 +179,10 @@
                 <!-- Selector de Día de Inicio de Ciclo Financiero -->
                 <div class="flex items-center gap-2 bg-white/60 px-3.5 py-1.5 rounded-2xl border border-white/80 shadow-sm text-xs font-bold text-slate-700 self-start md:self-auto">
                     <i data-lucide="calendar-range" class="w-4 h-4 text-pink-500"></i>
-                    <span>Día de Pago / Inicio de Ciclo:</span>
+                    <span>Día de Pago / Inicio:</span>
                     <select id="cycleStartSelect" onchange="updateCycleStart(this.value)" class="glass-input px-2 py-1 rounded-xl text-xs font-bold text-slate-800">
-                        <option value="31">Día 31 (Fin de mes)</option>
-                        <option value="30">Día 30</option>
+                        <option value="30" selected>Día 30 (Pago fin de mes)</option>
+                        <option value="31">Día 31</option>
                         <option value="28">Día 28</option>
                         <option value="25">Día 25</option>
                         <option value="20">Día 20</option>
@@ -199,7 +199,7 @@
                         <div class="p-2 bg-emerald-100/90 text-emerald-600 rounded-xl"><i data-lucide="arrow-down-left" class="w-5 h-5"></i></div>
                     </div>
                     <div id="statIncome" class="text-2xl sm:text-3xl font-extrabold text-slate-800">$0</div>
-                    <p class="text-xs text-slate-700 font-semibold mt-1">Ganado en el periodo</p>
+                    <p class="text-xs text-slate-700 font-semibold mt-1">Ganado en el ciclo</p>
                 </div>
 
                 <div class="glass-card rounded-3xl p-5 transform hover:-translate-y-1 transition duration-300">
@@ -208,7 +208,7 @@
                         <div class="p-2 bg-rose-100/90 text-rose-600 rounded-xl"><i data-lucide="arrow-up-right" class="w-5 h-5"></i></div>
                     </div>
                     <div id="statExpense" class="text-2xl sm:text-3xl font-extrabold text-slate-800">$0</div>
-                    <p class="text-xs text-slate-700 font-semibold mt-1">Gastado en el periodo</p>
+                    <p class="text-xs text-slate-700 font-semibold mt-1">Gastado en el ciclo</p>
                 </div>
 
                 <div class="glass-card rounded-3xl p-5 transform hover:-translate-y-1 transition duration-300">
@@ -217,7 +217,7 @@
                         <div class="p-2 bg-sky-100/90 text-sky-600 rounded-xl"><i data-lucide="piggy-bank" class="w-5 h-5"></i></div>
                     </div>
                     <div id="statSavings" class="text-2xl sm:text-3xl font-extrabold text-slate-800">$0</div>
-                    <p class="text-xs text-slate-700 font-semibold mt-1">Guardado en el periodo</p>
+                    <p class="text-xs text-slate-700 font-semibold mt-1">Guardado en el ciclo</p>
                 </div>
 
                 <div class="glass-card rounded-3xl p-5 transform hover:-translate-y-1 transition duration-300">
@@ -346,7 +346,7 @@
 
                         <div id="emptyState" class="hidden text-center py-12 text-slate-700 space-y-2">
                             <i data-lucide="sparkles" class="w-10 h-10 mx-auto text-pink-400"></i>
-                            <p class="font-bold text-base">Aún no hay registros en este período</p>
+                            <p class="font-bold text-base">Aún no hay registros en este ciclo</p>
                             <p class="text-xs font-semibold">Comienza agregando tu primer movimiento a la izquierda.</p>
                         </div>
                     </div>
@@ -529,7 +529,7 @@
         <!-- 8. CALENDARIO VISUAL DE GASTOS -->
         <section class="glass-card rounded-3xl p-6 md:p-8 space-y-4">
             <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                <i data-lucide="calendar-days" class="w-6 h-6 text-purple-500"></i> Mapa Visual de Gastos Diarios
+                <i data-lucide="calendar-days" class="w-6 h-6 text-purple-500"></i> Mapa Visual de Gastos del Ciclo
             </h2>
             <div id="calendarGrid" class="grid grid-cols-7 gap-2 text-center pt-2"></div>
         </section>
@@ -610,7 +610,7 @@
         </div>
     </div>
 
-    <!-- Script Completo con Corrección Total de Bugs + Ciclo Financiero -->
+    <!-- Script Completo con Lógica de Ciclo de Cobro Exacto -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAg8cp74XMwu-T1U9Wmt54KgSXXY7oWiG0",
@@ -630,7 +630,7 @@
         let savingsGoals = [];
         let subscriptions = [];
         let budgetLimit = 300000;
-        let cycleStartDay = 31; // Día predeterminado de cobro / inicio de ciclo
+        let cycleStartDay = 30; // Pago el 30 por defecto
         let currentFilter = 'all';
         let expenseChart = null;
         let activeDepositGoalId = null;
@@ -651,31 +651,59 @@
             return `${year}-${month}-${day}`;
         }
 
-        function getLocalMonthString(dateObj = new Date()) {
-            const year = dateObj.getFullYear();
-            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-            return `${year}-${month}`;
+        // DEVUELVE EL CICLO ACTIVO SEGÚN LA FECHA ACTUAL (Ej: El 30 de Octubre abre directamente en Noviembre)
+        function getActiveCycleMonth(dateObj = new Date()) {
+            let y = dateObj.getFullYear();
+            let m = dateObj.getMonth() + 1;
+            let d = dateObj.getDate();
+
+            if (cycleStartDay > 1 && d >= cycleStartDay) {
+                m += 1;
+                if (m > 12) {
+                    m = 1;
+                    y += 1;
+                }
+            }
+            return `${y}-${String(m).padStart(2, '0')}`;
         }
 
-        // LÓGICA DE FILTRADO POR CICLO FINANCIERO SEGÚN DÍA DE PAGO
+        // OBTENER RANGO EXACTO DEL CICLO FINANCIERO (Ej: Noviembre = 30 Oct a 29 Nov)
+        function getCycleRange(selectedMonth) {
+            if (!selectedMonth) return null;
+            const [year, month] = selectedMonth.split('-').map(Number);
+
+            if (cycleStartDay === 1) {
+                const daysInMonth = new Date(year, month, 0).getDate();
+                return {
+                    start: new Date(year, month - 1, 1, 0, 0, 0),
+                    end: new Date(year, month - 1, daysInMonth, 23, 59, 59)
+                };
+            }
+
+            let prevYear = year;
+            let prevMonth = month - 1;
+            if (prevMonth === 0) {
+                prevMonth = 12;
+                prevYear = year - 1;
+            }
+            const daysInPrev = new Date(prevYear, prevMonth, 0).getDate();
+            const startDay = Math.min(cycleStartDay, daysInPrev);
+            const startDate = new Date(prevYear, prevMonth - 1, startDay, 0, 0, 0);
+
+            const daysInCurr = new Date(year, month, 0).getDate();
+            const endDay = Math.min(cycleStartDay - 1, daysInCurr);
+            const endDate = new Date(year, month - 1, endDay > 0 ? endDay : daysInCurr, 23, 59, 59);
+
+            return { start: startDate, end: endDate };
+        }
+
         function isDateInCycle(dateStr, selectedMonth) {
             if (!selectedMonth) return true;
-            if (cycleStartDay === 1) return dateStr.startsWith(selectedMonth);
+            const range = getCycleRange(selectedMonth);
+            if (!range) return true;
 
-            const [year, month] = selectedMonth.split('-').map(Number); // Ej: 2026, 11 (Noviembre)
-            
-            // Inicio: Día 'cycleStartDay' del mes anterior (o el último día del mes anterior si no existe ese día)
-            const prevMonthDays = new Date(year, month - 1, 0).getDate();
-            const startDay = Math.min(cycleStartDay, prevMonthDays);
-            const startDate = new Date(year, month - 2, startDay, 0, 0, 0);
-
-            // Término: Un día antes del próximo inicio de ciclo (o último día del mes seleccionado)
-            const currMonthDays = new Date(year, month, 0).getDate();
-            const endDay = Math.min(cycleStartDay - 1, currMonthDays);
-            const endDate = new Date(year, month - 1, endDay > 0 ? endDay : currMonthDays, 23, 59, 59);
-
-            const targetDate = new Date(dateStr + "T12:00:00");
-            return targetDate >= startDate && targetDate <= endDate;
+            const target = new Date(dateStr + "T12:00:00");
+            return target >= range.start && target <= range.end;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -684,12 +712,11 @@
             document.getElementById('currentDate').innerText = today.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
             
             document.getElementById('txDate').value = getLocalDateString(today);
-            document.getElementById('monthFilter').value = getLocalMonthString(today);
+            document.getElementById('monthFilter').value = getActiveCycleMonth(today);
 
             newQuote();
             initChart();
 
-            // Sincronización robusta con Firebase
             appRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -706,13 +733,13 @@
                         : (data.subscriptions ? Object.values(data.subscriptions) : []);
                         
                     budgetLimit = data.budgetLimit !== undefined ? data.budgetLimit : 300000;
-                    cycleStartDay = data.cycleStartDay !== undefined ? data.cycleStartDay : 31;
+                    cycleStartDay = data.cycleStartDay !== undefined ? data.cycleStartDay : 30;
                 } else {
                     transactions = [];
                     savingsGoals = [];
                     subscriptions = [];
                     budgetLimit = 300000;
-                    cycleStartDay = 31;
+                    cycleStartDay = 30;
                 }
 
                 document.getElementById('cycleStartSelect').value = String(cycleStartDay);
@@ -739,6 +766,8 @@
 
         function updateCycleStart(value) {
             cycleStartDay = parseInt(value);
+            const today = new Date();
+            document.getElementById('monthFilter').value = getActiveCycleMonth(today);
             saveToFirebase();
             renderApp();
         }
@@ -1192,34 +1221,42 @@
             }
         }
 
+        // DIBUJA EL CALENDARIO DENTRO DEL RANGO REAL DEL CICLO (Ej: Oct 30 - Nov 29)
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const selectedMonth = document.getElementById('monthFilter').value;
             if (!selectedMonth) return;
 
-            const [year, month] = selectedMonth.split('-').map(Number);
-            const daysInMonth = new Date(year, month, 0).getDate();
+            const range = getCycleRange(selectedMonth);
+            if (!range) return;
 
             grid.innerHTML = '';
             const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
             daysOfWeek.forEach(d => grid.innerHTML += `<div class="text-xs font-bold text-slate-500 pb-1">${d}</div>`);
 
-            const firstDayIndex = new Date(year, month - 1, 1).getDay();
-            for (let i = 0; i < firstDayIndex; i++) {
+            const firstDayOfWeek = range.start.getDay();
+            for (let i = 0; i < firstDayOfWeek; i++) {
                 grid.innerHTML += `<div></div>`;
             }
 
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayStr = `${selectedMonth}-${String(day).padStart(2, '0')}`;
+            let curr = new Date(range.start);
+            while (curr <= range.end) {
+                const dayStr = getLocalDateString(curr);
+                const dayNum = curr.getDate();
+                const monthShort = curr.toLocaleDateString('es-CL', { month: 'short' });
+                
                 const dayTxs = transactions.filter(t => t.date === dayStr && (t.type === 'expense' || t.type === 'leisure'));
                 const hasExpense = dayTxs.length > 0;
 
                 grid.innerHTML += `
-                    <div class="p-1.5 rounded-xl text-xs font-bold ${hasExpense ? 'bg-rose-200/80 text-rose-800' : 'bg-white/40 text-slate-600'}">
-                        ${day}
+                    <div class="p-1.5 rounded-xl text-xs font-bold ${hasExpense ? 'bg-rose-200/80 text-rose-800' : 'bg-white/40 text-slate-600'}" title="${dayStr}">
+                        <span class="text-[9px] block opacity-60">${monthShort}</span>
+                        ${dayNum}
                         ${hasExpense ? '<span class="block text-[9px] font-extrabold">💸</span>' : ''}
                     </div>
                 `;
+
+                curr.setDate(curr.getDate() + 1);
             }
         }
 
@@ -1382,7 +1419,7 @@
                         savingsGoals = data.savingsGoals || [];
                         subscriptions = data.subscriptions || [];
                         budgetLimit = data.budgetLimit !== undefined ? data.budgetLimit : 300000;
-                        cycleStartDay = data.cycleStartDay !== undefined ? data.cycleStartDay : 31;
+                        cycleStartDay = data.cycleStartDay !== undefined ? data.cycleStartDay : 30;
                     }
                     saveToFirebase();
                     renderApp();
@@ -1400,7 +1437,7 @@
                 savingsGoals = [];
                 subscriptions = [];
                 budgetLimit = 300000;
-                cycleStartDay = 31;
+                cycleStartDay = 30;
                 saveToFirebase();
                 renderApp();
             }
