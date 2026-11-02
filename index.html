@@ -619,7 +619,7 @@
 
     <!-- Script Completo con la Lógica de Firebase Realtime Sync -->
     <script>
-        // Configuración con tus credenciales reales de Firebase[cite: 12]
+        // Configuración con tus credenciales reales de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAg8cp74XMwu-T1U9Wmt54KgSXXY7oWiG0",
             authDomain: "finanzassiboney.firebaseapp.com",
@@ -822,6 +822,9 @@
 
             transactions.unshift({ id: Date.now(), desc: `${emoji} ${desc}`, amount, type, category, date });
             saveToFirebase();
+
+            // NUEVO: Cambiar automáticamente el filtro visual al mes de la fecha ingresada
+            document.getElementById('monthFilter').value = date.slice(0, 7);
 
             document.getElementById('txDesc').value = '';
             document.getElementById('txAmount').value = '';
