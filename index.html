@@ -135,7 +135,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm font-bold">
                 <div class="flex flex-wrap items-center gap-2">
                     <i data-lucide="target" class="w-4 h-4 text-pink-500"></i>
-                    <span>Presupuesto Máximo del Mes:</span>
+                    <span>Presupuesto Máximo del Ciclo:</span>
                     
                     <div id="budgetViewContainer" class="flex items-center gap-2">
                         <span id="budgetDisplay" class="text-pink-600 font-extrabold text-base">$0</span>
@@ -166,13 +166,30 @@
             </div>
         </section>
 
-        <!-- 2. FILTRAR PERIODO & CARDS KPI -->
+        <!-- 2. FILTRAR PERIODO & CONFIGURACIÓN DE DÍA DE PAGO -->
         <section class="space-y-4">
-            <div class="flex items-center justify-between">
-                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                    <i data-lucide="filter" class="w-4 h-4 text-pink-500"></i> Filtrar Periodo:
-                </h3>
-                <input type="month" id="monthFilter" onchange="renderApp()" class="glass-input px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                        <i data-lucide="filter" class="w-4 h-4 text-pink-500"></i> Filtrar Periodo:
+                    </h3>
+                    <input type="month" id="monthFilter" onchange="renderApp()" class="glass-input px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800">
+                </div>
+
+                <!-- Selector de Día de Inicio de Ciclo Financiero -->
+                <div class="flex items-center gap-2 bg-white/60 px-3.5 py-1.5 rounded-2xl border border-white/80 shadow-sm text-xs font-bold text-slate-700 self-start md:self-auto">
+                    <i data-lucide="calendar-range" class="w-4 h-4 text-pink-500"></i>
+                    <span>Día de Pago / Inicio de Ciclo:</span>
+                    <select id="cycleStartSelect" onchange="updateCycleStart(this.value)" class="glass-input px-2 py-1 rounded-xl text-xs font-bold text-slate-800">
+                        <option value="31">Día 31 (Fin de mes)</option>
+                        <option value="30">Día 30</option>
+                        <option value="28">Día 28</option>
+                        <option value="25">Día 25</option>
+                        <option value="20">Día 20</option>
+                        <option value="15">Día 15</option>
+                        <option value="1">Día 1 (Mes Calendario)</option>
+                    </select>
+                </div>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
@@ -329,7 +346,7 @@
 
                         <div id="emptyState" class="hidden text-center py-12 text-slate-700 space-y-2">
                             <i data-lucide="sparkles" class="w-10 h-10 mx-auto text-pink-400"></i>
-                            <p class="font-bold text-base">Aún no hay registros</p>
+                            <p class="font-bold text-base">Aún no hay registros en este período</p>
                             <p class="text-xs font-semibold">Comienza agregando tu primer movimiento a la izquierda.</p>
                         </div>
                     </div>
@@ -494,7 +511,7 @@
         <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="glass-card rounded-3xl p-6 space-y-3">
                 <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <i data-lucide="trending-up" class="w-5 h-5 text-pink-500"></i> Comparativa vs Mes Anterior
+                    <i data-lucide="trending-up" class="w-5 h-5 text-pink-500"></i> Comparativa vs Ciclo Anterior
                 </h3>
                 <div id="monthComparisonBox" class="p-4 rounded-2xl bg-white/50 border border-white/70 text-sm font-semibold text-slate-800">
                     Cargando comparativa...
@@ -503,7 +520,7 @@
 
             <div class="glass-card rounded-3xl p-6 space-y-3">
                 <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <i data-lucide="crown" class="w-5 h-5 text-amber-500"></i> Top 3 Mayor Ocio del Mes
+                    <i data-lucide="crown" class="w-5 h-5 text-amber-500"></i> Top 3 Mayor Ocio del Ciclo
                 </h3>
                 <div id="topLeisureBox" class="space-y-2"></div>
             </div>
@@ -593,7 +610,7 @@
         </div>
     </div>
 
-    <!-- Script Completo con Corrección Total de Bugs -->
+    <!-- Script Completo con Corrección Total de Bugs + Ciclo Financiero -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAg8cp74XMwu-T1U9Wmt54KgSXXY7oWiG0",
@@ -613,6 +630,7 @@
         let savingsGoals = [];
         let subscriptions = [];
         let budgetLimit = 300000;
+        let cycleStartDay = 31; // Día predeterminado de cobro / inicio de ciclo
         let currentFilter = 'all';
         let expenseChart = null;
         let activeDepositGoalId = null;
@@ -625,7 +643,7 @@
             "Disfruta tus gustitos con responsabilidad y amor 🛍️"
         ];
 
-        // FUNCIONES DE FECHA LOCAL (Sin desfases UTC por la noche)
+        // FUNCIONES DE FECHA LOCAL
         function getLocalDateString(dateObj = new Date()) {
             const year = dateObj.getFullYear();
             const month = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -639,33 +657,65 @@
             return `${year}-${month}`;
         }
 
+        // LÓGICA DE FILTRADO POR CICLO FINANCIERO SEGÚN DÍA DE PAGO
+        function isDateInCycle(dateStr, selectedMonth) {
+            if (!selectedMonth) return true;
+            if (cycleStartDay === 1) return dateStr.startsWith(selectedMonth);
+
+            const [year, month] = selectedMonth.split('-').map(Number); // Ej: 2026, 11 (Noviembre)
+            
+            // Inicio: Día 'cycleStartDay' del mes anterior (o el último día del mes anterior si no existe ese día)
+            const prevMonthDays = new Date(year, month - 1, 0).getDate();
+            const startDay = Math.min(cycleStartDay, prevMonthDays);
+            const startDate = new Date(year, month - 2, startDay, 0, 0, 0);
+
+            // Término: Un día antes del próximo inicio de ciclo (o último día del mes seleccionado)
+            const currMonthDays = new Date(year, month, 0).getDate();
+            const endDay = Math.min(cycleStartDay - 1, currMonthDays);
+            const endDate = new Date(year, month - 1, endDay > 0 ? endDay : currMonthDays, 23, 59, 59);
+
+            const targetDate = new Date(dateStr + "T12:00:00");
+            return targetDate >= startDate && targetDate <= endDate;
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             const today = new Date();
             document.getElementById('currentDate').innerText = today.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
             
-            // Asignación correcta de fecha y mes local
             document.getElementById('txDate').value = getLocalDateString(today);
             document.getElementById('monthFilter').value = getLocalMonthString(today);
 
             newQuote();
             initChart();
 
-            // Escuchar cambios de Firebase sin inyectar datos por defecto al estar vacío
+            // Sincronización robusta con Firebase
             appRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    transactions = data.transactions || [];
-                    savingsGoals = data.savingsGoals || [];
-                    subscriptions = data.subscriptions || [];
+                    transactions = Array.isArray(data.transactions) 
+                        ? data.transactions 
+                        : (data.transactions ? Object.values(data.transactions) : []);
+                        
+                    savingsGoals = Array.isArray(data.savingsGoals) 
+                        ? data.savingsGoals 
+                        : (data.savingsGoals ? Object.values(data.savingsGoals) : []);
+                        
+                    subscriptions = Array.isArray(data.subscriptions) 
+                        ? data.subscriptions 
+                        : (data.subscriptions ? Object.values(data.subscriptions) : []);
+                        
                     budgetLimit = data.budgetLimit !== undefined ? data.budgetLimit : 300000;
+                    cycleStartDay = data.cycleStartDay !== undefined ? data.cycleStartDay : 31;
                 } else {
                     transactions = [];
                     savingsGoals = [];
                     subscriptions = [];
                     budgetLimit = 300000;
+                    cycleStartDay = 31;
                 }
 
+                document.getElementById('cycleStartSelect').value = String(cycleStartDay);
                 renderApp();
 
                 const syncBadge = document.getElementById('syncStatus');
@@ -682,8 +732,15 @@
                 transactions: transactions,
                 savingsGoals: savingsGoals,
                 subscriptions: subscriptions,
-                budgetLimit: budgetLimit
+                budgetLimit: budgetLimit,
+                cycleStartDay: cycleStartDay
             });
+        }
+
+        function updateCycleStart(value) {
+            cycleStartDay = parseInt(value);
+            saveToFirebase();
+            renderApp();
         }
 
         function newQuote() {
@@ -806,7 +863,7 @@
 
             transactions.unshift({ id: Date.now(), desc: `${emoji} ${desc}`, amount, type, category, date });
             saveToFirebase();
-            renderApp(); // Renderizado inmediato local
+            renderApp();
 
             document.getElementById('txDesc').value = '';
             document.getElementById('txAmount').value = '';
@@ -853,7 +910,7 @@
             let currentExpense = 0;
 
             transactions.forEach(t => {
-                if (t.date.startsWith(selectedMonth) && (t.type === 'expense' || t.type === 'leisure')) {
+                if (isDateInCycle(t.date, selectedMonth) && (t.type === 'expense' || t.type === 'leisure')) {
                     currentExpense += t.amount;
                 }
             });
@@ -872,7 +929,7 @@
             let income = 0, expense = 0, savings = 0, leisure = 0;
 
             transactions.forEach(t => {
-                if (!selectedMonth || t.date.startsWith(selectedMonth)) {
+                if (isDateInCycle(t.date, selectedMonth)) {
                     if (t.type === 'income') income += t.amount;
                     if (t.type === 'expense') expense += t.amount;
                     if (t.type === 'savings') savings += t.amount;
@@ -886,7 +943,6 @@
             document.getElementById('statLeisure').innerText = formatMoney(leisure);
         }
 
-        // CÁLCULO DE MES ANTERIOR CORREGIDO (Aritmética limpia de números)
         function renderComparison() {
             const selected = document.getElementById('monthFilter').value;
             if (!selected) return;
@@ -904,36 +960,36 @@
 
             transactions.forEach(t => {
                 if ((t.type === 'expense' || t.type === 'leisure')) {
-                    if (t.date.startsWith(selected)) currentExpense += t.amount;
-                    if (t.date.startsWith(prevMonthStr)) prevExpense += t.amount;
+                    if (isDateInCycle(t.date, selected)) currentExpense += t.amount;
+                    if (isDateInCycle(t.date, prevMonthStr)) prevExpense += t.amount;
                 }
             });
 
             const box = document.getElementById('monthComparisonBox');
             if (prevExpense === 0) {
-                box.innerHTML = `<span>Gastaste <strong>${formatMoney(currentExpense)}</strong> este mes. No hay registros suficientes del mes anterior (${prevMonthStr}) para comparar.</span>`;
+                box.innerHTML = `<span>Gastaste <strong>${formatMoney(currentExpense)}</strong> en este ciclo. No hay registros suficientes del ciclo anterior para comparar.</span>`;
             } else {
                 const diff = currentExpense - prevExpense;
                 const percent = Math.round((diff / prevExpense) * 100);
                 if (diff < 0) {
-                    box.innerHTML = `🎉 <span class="text-emerald-700 font-bold">¡Excelente! Gastaste un ${Math.abs(percent)}% menos</span> (${formatMoney(Math.abs(diff))}) que el mes anterior (${formatMoney(prevExpense)}).`;
+                    box.innerHTML = `🎉 <span class="text-emerald-700 font-bold">¡Excelente! Gastaste un ${Math.abs(percent)}% menos</span> (${formatMoney(Math.abs(diff))}) que el ciclo anterior (${formatMoney(prevExpense)}).`;
                 } else if (diff > 0) {
-                    box.innerHTML = `⚠️ <span class="text-rose-600 font-bold">Gastaste un ${percent}% más</span> (${formatMoney(diff)}) que el mes anterior (${formatMoney(prevExpense)}).`;
+                    box.innerHTML = `⚠️ <span class="text-rose-600 font-bold">Gastaste un ${percent}% más</span> (${formatMoney(diff)}) que el ciclo anterior (${formatMoney(prevExpense)}).`;
                 } else {
-                    box.innerHTML = `⚖️ Gastaste exactamente lo mismo que el mes anterior (${formatMoney(currentExpense)}).`;
+                    box.innerHTML = `⚖️ Gastaste exactamente lo mismo que el ciclo anterior (${formatMoney(currentExpense)}).`;
                 }
             }
         }
 
         function renderTopLeisure() {
             const selectedMonth = document.getElementById('monthFilter').value;
-            const leisureTxs = transactions.filter(t => (!selectedMonth || t.date.startsWith(selectedMonth)) && t.type === 'leisure');
+            const leisureTxs = transactions.filter(t => isDateInCycle(t.date, selectedMonth) && t.type === 'leisure');
             
             const container = document.getElementById('topLeisureBox');
             container.innerHTML = '';
 
             if (leisureTxs.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-600 italic">No hay registrados gustitos u ocio este mes.</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-600 italic">No hay registrados gustitos u ocio en este ciclo.</p>`;
                 return;
             }
 
@@ -1018,7 +1074,6 @@
             document.getElementById('depositModal').classList.add('hidden');
         }
 
-        // REGISTRA AUTOMÁTICAMENTE EL GASTO/AHORRO AL ABONAR
         function saveDepositModal() {
             const amount = parseFloat(document.getElementById('depositModalAmount').value);
             if (activeDepositGoalId && amount > 0) {
@@ -1081,7 +1136,6 @@
             lucide.createIcons();
         }
 
-        // CREA UN MOVIENTO DE GASTO AUTOMÁTICO AL MARCAR PAGADO
         function toggleSub(id) {
             const sub = subscriptions.find(s => s.id === id);
             if (sub) {
@@ -1198,7 +1252,7 @@
             tbody.innerHTML = '';
 
             const filtered = transactions.filter(t => {
-                const matchesMonth = !selectedMonth || t.date.startsWith(selectedMonth);
+                const matchesMonth = isDateInCycle(t.date, selectedMonth);
                 const matchesFilter = currentFilter === 'all' ? true : (currentFilter === 'expense' ? (t.type === 'expense' || t.type === 'leisure') : t.type === currentFilter);
                 const matchesSearch = t.desc.toLowerCase().includes(searchQuery) || t.category.toLowerCase().includes(searchQuery);
 
@@ -1280,7 +1334,7 @@
             const selectedMonth = document.getElementById('monthFilter').value;
             const categoryTotals = {};
 
-            transactions.filter(t => (!selectedMonth || t.date.startsWith(selectedMonth)) && (t.type === 'expense' || t.type === 'leisure')).forEach(t => {
+            transactions.filter(t => isDateInCycle(t.date, selectedMonth) && (t.type === 'expense' || t.type === 'leisure')).forEach(t => {
                 categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
             });
 
@@ -1306,7 +1360,7 @@
         }
 
         function exportJSON() {
-            const backup = { transactions, savingsGoals, subscriptions, budgetLimit };
+            const backup = { transactions, savingsGoals, subscriptions, budgetLimit, cycleStartDay };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup, null, 2));
             const link = document.createElement("a");
             link.href = dataStr;
@@ -1314,7 +1368,6 @@
             link.click();
         }
 
-        // CORRECCIÓN AL CARGAR RESPALDOS (Conserva presupuesto en $0 si existía)
         function importJSON(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -1329,6 +1382,7 @@
                         savingsGoals = data.savingsGoals || [];
                         subscriptions = data.subscriptions || [];
                         budgetLimit = data.budgetLimit !== undefined ? data.budgetLimit : 300000;
+                        cycleStartDay = data.cycleStartDay !== undefined ? data.cycleStartDay : 31;
                     }
                     saveToFirebase();
                     renderApp();
@@ -1346,6 +1400,7 @@
                 savingsGoals = [];
                 subscriptions = [];
                 budgetLimit = 300000;
+                cycleStartDay = 31;
                 saveToFirebase();
                 renderApp();
             }
